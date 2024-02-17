@@ -1,0 +1,10 @@
+parameters:
+    level: 9
+    paths:
+        - src
+        - tests
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+    doctrine:
+        ormRepositoryClass: App\Repository\AbstractRepository
+        objectManagerLoader: tests/phpstan-bootstrap.php
