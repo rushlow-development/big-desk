@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Test\Controller;
+namespace App\Tests\Functional\Controller;
 
 use App\Repository\NoteRepository;
 use App\Tests\Factory\NoteFactory;
