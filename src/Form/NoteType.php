@@ -24,7 +24,7 @@ class NoteType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Note::class,
-            'empty_data' => fn(FormInterface $form): Note => new Note(
+            'empty_data' => fn (FormInterface $form): Note => new Note(
                 $form->get('title')->getData(), // @phpstan-ignore-line
                 $form->get('content')->getData(), // @phpstan-ignore-line
             ),

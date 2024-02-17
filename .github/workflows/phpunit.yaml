@@ -1,0 +1,41 @@
+name: PHPUnit
+
+env:
+    APP_ENV: test
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+
+jobs:
+    stable-tests:
+        name: Stable 8.3
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:16
+                ports:
+                    - '5432:5432'
+                env:
+                    POSTGRES_PASSWORD: "!ChangeMe!"
+                    POSTGRES_USER: app
+                    options: --health-cmd=pg_isready --health-interval=5s --health-timeout=15s --health-retries=5
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.3
+                    extensions: ctype, iconv, intl, pgsql, mbstring, xml, pgsql
+
+            -   name: Install Composer Dependencies
+                run: composer install --prefer-dist --no-progress
+
+            -   name: Run Tests
+                run: bin/phpunit -c $GITHUB_WORKSPACE/phpunit.xml.dist
