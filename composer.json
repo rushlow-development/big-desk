@@ -1,4 +1,6 @@
 {
+    "name": "rushlow-development/big-desk",
+    "description": "App to help remember stuff...",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
