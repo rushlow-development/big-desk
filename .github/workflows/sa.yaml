@@ -1,0 +1,116 @@
+name: Static Analysis
+
+env:
+    APP_ENV: test
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+
+jobs:
+    composer-validate:
+        name: Validate composer.json
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.3
+                    extensions: ctype, iconv, intl, pgsql, mbstring, xml
+
+            -   name: Composer Validate
+                run: composer validate --strict
+
+    php-cs-fixer:
+        name: Lint PHP Source
+        runs-on: ubuntu-latest
+        env:
+            PHP_CS_FIXER_IGNORE_ENV: 1
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.3
+                    extensions: ctype, iconv, intl, pgsql, mbstring, xml
+
+            -   name: Install PHP-CS-FIXER
+                run: composer install -d $GITHUB_WORKSPACE/tools/php-cs-fixer --prefer-dist --no-progress
+
+            -   name: Enforce Coding Standards
+                run: $GITHUB_WORKSPACE/tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --config $GITHUB_WORKSPACE/.php-cs-fixer.dist.php --dry-run
+
+    phpstan:
+        name: PHPStan Analysis
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.3
+                    extensions: ctype, iconv, intl, pgsql, mbstring, xml
+
+            -   name: Install Dependencies
+                run: composer install --no-progress --prefer-dist
+
+            -   name: Install PHPStan
+                run: composer install -d $GITHUB_WORKSPACE/tools/phpstan --prefer-dist --no-progress
+
+            -   name: Analyze Source
+                run: $GITHUB_WORKSPACE/tools/phpstan/vendor/bin/phpstan analyze -c $GITHUB_WORKSPACE/phpstan.dist.neon
+
+    rector:
+        name: Rector PHP Source
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.3
+                    extensions: ctype, iconv, intl, pgsql, mbstring, xml
+
+            -   name: Install Dependencies
+                run: composer install --no-progress --prefer-dist
+
+            -   name: Install Rector
+                run: composer install -d $GITHUB_WORKSPACE/tools/rector --prefer-dist --no-progress
+
+            -   name: Analyze Source
+                run: $GITHUB_WORKSPACE/tools/rector/vendor/bin/rector process --clear-cache --dry-run -c $GITHUB_WORKSPACE/rector.php
+
+    twig-cs:
+        name: Lint Twig Source
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.3
+                    extensions: ctype, iconv, intl, pgsql, mbstring, xml
+
+            -   name: Install TwigCS
+                run: composer install -d $GITHUB_WORKSPACE/tools/twigcs --prefer-dist --no-progress
+
+            -   name: Enforce Coding Standards
+                run: $GITHUB_WORKSPACE/tools/twigcs/vendor/bin/twigcs --config $GITHUB_WORKSPACE/.twigcs.dist.php
