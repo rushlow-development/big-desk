@@ -4,16 +4,11 @@ namespace App\Tests\Functional\Controller;
 
 use App\Repository\NoteRepository;
 use App\Tests\Factory\NoteFactory;
+use App\Tests\FunctionalTestCase;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-class NoteControllerTest extends WebTestCase
+class NoteControllerTest extends FunctionalTestCase
 {
-    use Factories;
-    use ResetDatabase;
-
     private KernelBrowser $client;
     private NoteRepository $repository;
     private string $path = '/note';

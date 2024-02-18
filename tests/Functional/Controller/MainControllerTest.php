@@ -3,15 +3,10 @@
 namespace App\Tests\Functional\Controller;
 
 use App\Tests\Factory\NoteFactory;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
+use App\Tests\FunctionalTestCase;
 
-class MainControllerTest extends WebTestCase
+class MainControllerTest extends FunctionalTestCase
 {
-    use Factories;
-    use ResetDatabase;
-
     public function testIndex(): void
     {
         $client = static::createClient();
