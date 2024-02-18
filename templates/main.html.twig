@@ -3,14 +3,32 @@
 {% block title %}Hello MainController!{% endblock %}
 
 {% block body %}
-    {% for note in notes %}
-        <div class="row">
-            <div class="col">
-                <h1>{{ note.title }}</h1>
-                <div>
-                    {{ note.content }}
+    <div class="row">
+        <div class="col bg-dark-subtle m-1 py-1 rounded">
+            {% for note in notes %}
+                <div class="row">
+                    <div class="col">
+                        <h1>{{ note.title }}</h1>
+                        <div>
+                            {{ note.content }}
+                        </div>
+                    </div>
                 </div>
-            </div>
+            {% endfor %}
         </div>
-    {% endfor %}
+        <div class="col-4 bg-dark-subtle m-1 py-1 rounded">
+            {% for todo in todos %}
+                <a href="{{ path('app_todo_list_show', {'id': todo.id}) }}">{{ todo.name }}</a>
+                <ul class="list-group list-group-flush">
+                    {% for task in todo.items %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-dark-subtle">
+                            {{ task }}
+                            <button type="button" class="btn btn-outline-danger btn-sm">X</button>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        </div>
+    </div>
+
 {% endblock %}

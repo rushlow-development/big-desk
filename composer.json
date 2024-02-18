@@ -87,7 +87,8 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "panther-drivers": "vendor/bin/bdi detect drivers"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -100,11 +101,13 @@
         }
     },
     "require-dev": {
+        "dbrekelmans/bdi": "^1.1",
         "phpunit/phpunit": "^11.0",
         "symfony/browser-kit": "7.0.*",
         "symfony/css-selector": "7.0.*",
         "symfony/debug-bundle": "7.0.*",
         "symfony/maker-bundle": "^1.0",
+        "symfony/panther": "^2.1",
         "symfony/phpunit-bridge": "^7.0",
         "symfony/stopwatch": "7.0.*",
         "symfony/web-profiler-bundle": "7.0.*",
