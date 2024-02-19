@@ -26,6 +26,7 @@ abstract class PantherTestCase extends \Symfony\Component\Panther\PantherTestCas
 
     protected Client $client;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->client = static::createPantherClient();
@@ -36,9 +37,6 @@ abstract class PantherTestCase extends \Symfony\Component\Panther\PantherTestCas
         $this->client->executeScript(sprintf('document.querySelector(\'%s\').click()', $selector));
     }
 
-    /**
-     * @before
-     */
     #[Before]
     public static function _setUpFactories(): void
     {

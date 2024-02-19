@@ -12,6 +12,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TodoListType extends AbstractType
 {
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -26,15 +27,14 @@ class TodoListType extends AbstractType
         ;
     }
 
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => TodoList::class,
-            'empty_data' => function (FormInterface $form): TodoList {
-                return new TodoList(
-                    $form->get('name')->getData(), // @phpstan-ignore-line
-                );
-            },
+            'empty_data' => fn (FormInterface $form): TodoList => new TodoList(
+                $form->get('name')->getData(), // @phpstan-ignore-line
+            ),
         ]);
     }
 }

@@ -27,6 +27,13 @@ class TodoList extends AbstractEntity
         return $this->name;
     }
 
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
     /** @return string[] */
     public function getTasks(): array
     {

@@ -14,6 +14,7 @@ class TodoListControllerTest extends FunctionalTestCase
     private TodoListRepository $repository;
     private string $path = '/todo';
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->client = static::createClient();

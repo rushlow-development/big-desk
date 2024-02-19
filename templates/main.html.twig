@@ -19,16 +19,19 @@
         <div class="col-4 bg-dark-subtle m-1 py-1 rounded">
             {% for todo in todos %}
                 <a href="{{ path('app_todo_list_show', {'id': todo.id}) }}">{{ todo.name }}</a>
-                <ul class="list-group list-group-flush">
-                    {% for task in todo.items %}
+                <ul class="list-group list-group-flush" {{ stimulus_controller('task_dashboard', {'todoListId': todo.id}) }}>
+                    {% for index_id, task in todo.tasks %}
                         <li class="list-group-item d-flex justify-content-between align-items-center bg-dark-subtle">
                             {{ task }}
-                            <button type="button" class="btn btn-outline-danger btn-sm">X</button>
+                            <button
+                                type="button"
+                                class="btn btn-outline-danger btn-sm"
+                                {{ stimulus_action('task_dashboard', 'removeTask', 'click', {'taskIndexId': index_id}) }}
+                            >X</button>
                         </li>
                     {% endfor %}
                 </ul>
             {% endfor %}
         </div>
     </div>
-
 {% endblock %}

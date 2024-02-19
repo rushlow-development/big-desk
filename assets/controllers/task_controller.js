@@ -31,16 +31,16 @@ export default class extends Controller {
         this.indexValue++;
     }
 
-    addRemoveButton(item) {
+    addRemoveButton(task) {
         let removeButton = document.createElement('button');
         removeButton.innerText = 'X';
         removeButton.classList.add('btn', 'btn-outline-danger');
 
         removeButton.addEventListener('click', (e) => {
             e.preventDefault();
-            item.remove();
+            task.remove();
         })
 
-        item.appendChild(removeButton);
+        task.appendChild(removeButton);
     }
 }

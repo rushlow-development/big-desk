@@ -24,9 +24,6 @@ abstract class FunctionalTestCase extends WebTestCase
     use Factories;
     use ResetDatabase;
 
-    /**
-     * @before
-     */
     #[Before]
     public static function _setUpFactories(): void
     {

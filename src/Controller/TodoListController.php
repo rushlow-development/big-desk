@@ -7,9 +7,11 @@ use App\Form\TodoListType;
 use App\Repository\TodoListRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
 
 #[Route('/todo', name: 'app_todo_')]
 class TodoListController extends AbstractController
@@ -93,13 +95,13 @@ class TodoListController extends AbstractController
     )]
     public function removeTask(TodoList $todoList, int $number): JsonResponse
     {
-        $items = $todoList->getTasks();
+        $tasks = $todoList->getTasks();
 
-        if (!\array_key_exists($number, $items)) {
+        if (!\array_key_exists($number, $tasks)) {
             return $this->json(['error' => 'Task index does not exist.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $todoList->removeTask($items[$number]);
+        $todoList->removeTask($tasks[$number]);
 
         $this->listRepository->flush();
 

@@ -14,6 +14,7 @@ use App\Entity\TodoList;
  */
 class TodoListRepository extends AbstractRepository
 {
+    #[\Override]
     protected static function getEntityClassName(): string
     {
         return TodoList::class;
