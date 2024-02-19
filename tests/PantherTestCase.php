@@ -7,8 +7,10 @@ use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Panther\Client;
+use Symfony\Component\Process\Process;
 use Zenstruck\Foundry\ChainManagerRegistry;
 use Zenstruck\Foundry\Configuration;
 use Zenstruck\Foundry\Exception\FoundryBootException;
@@ -25,6 +27,18 @@ abstract class PantherTestCase extends \Symfony\Component\Panther\PantherTestCas
     use ResetDatabase;
 
     protected Client $client;
+
+    #[\Override]
+    public static function setUpBeforeClass(): void
+    {
+        Process::fromShellCommandline('bin/console asset-map:compile')->run();
+    }
+
+    #[\Override]
+    public static function tearDownAfterClass(): void
+    {
+        (new Filesystem())->remove(__DIR__.'/../public/assets');
+    }
 
     #[\Override]
     protected function setUp(): void
