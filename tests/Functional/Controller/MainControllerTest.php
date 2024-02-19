@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Controller;
 
-use App\Tests\Factory\NoteFactory;
+use App\Factory\NoteFactory;
 use App\Tests\FunctionalTestCase;
 
 class MainControllerTest extends FunctionalTestCase

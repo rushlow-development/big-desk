@@ -3,8 +3,8 @@
 namespace App\Tests\Functional\Controller;
 
 use App\Entity\TodoList;
+use App\Factory\TodoListFactory;
 use App\Repository\TodoListRepository;
-use App\Tests\Factory\TodoListFactory;
 use App\Tests\FunctionalTestCase;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 

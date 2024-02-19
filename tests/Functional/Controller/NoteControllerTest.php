@@ -2,8 +2,8 @@
 
 namespace App\Tests\Functional\Controller;
 
+use App\Factory\NoteFactory;
 use App\Repository\NoteRepository;
-use App\Tests\Factory\NoteFactory;
 use App\Tests\FunctionalTestCase;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
