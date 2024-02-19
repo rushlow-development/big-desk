@@ -22,4 +22,27 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
     /** @return class-string */
     abstract protected static function getEntityClassName(): string;
+
+    public function remove(object $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->flush();
+        }
+    }
+
+    public function persist(object $object, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($object);
+
+        if ($flush) {
+            $this->flush();
+        }
+    }
+
+    public function flush(): void
+    {
+        $this->getEntityManager()->flush();
+    }
 }
