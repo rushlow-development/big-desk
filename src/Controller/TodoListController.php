@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\TodoList;
 use App\Form\TodoListType;
 use App\Repository\TodoListRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,8 +38,7 @@ class TodoListController extends AbstractController
             /** @var TodoList $list */
             $list = $form->getData();
 
-            $this->listRepository->persist($list);
-            $this->listRepository->flush();
+            $this->listRepository->persist($list, true);
 
             return $this->redirectToRoute('app_todo_list_show', ['id' => $list->getId()], Response::HTTP_SEE_OTHER);
         }
@@ -50,7 +48,7 @@ class TodoListController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'list_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'list_show', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
     public function show(TodoList $todoList): Response
     {
         return $this->render('todo_list/show.html.twig', [
@@ -58,7 +56,7 @@ class TodoListController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'list_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'list_edit', requirements: ['id' => Requirement::UUID], methods: ['GET', 'POST'])]
     public function edit(Request $request, TodoList $todoList): Response
     {
         $form = $this->createForm(TodoListType::class, $todoList);
@@ -76,12 +74,11 @@ class TodoListController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'list_delete', methods: ['POST'])]
-    public function delete(Request $request, TodoList $todoList, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}', name: 'list_delete', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    public function delete(Request $request, TodoList $todoList): Response
     {
         if ($this->isCsrfTokenValid('delete'.$todoList->getId(), (string) $request->request->get('_token'))) {
-            $entityManager->remove($todoList);
-            $entityManager->flush();
+            $this->listRepository->remove($todoList, true);
         }
 
         return $this->redirectToRoute('app_todo_list_index', [], Response::HTTP_SEE_OTHER);

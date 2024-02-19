@@ -5,25 +5,30 @@ namespace App\Controller;
 use App\Entity\Note;
 use App\Form\NoteType;
 use App\Repository\NoteRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
 
 #[Route('/note', name: 'app_note_')]
 class NoteController extends AbstractController
 {
+    public function __construct(
+        private readonly NoteRepository $noteRepository,
+    ) {
+    }
+
     #[Route(name: 'index', methods: ['GET'])]
-    public function index(NoteRepository $noteRepository): Response
+    public function index(): Response
     {
         return $this->render('note/index.html.twig', [
-            'notes' => $noteRepository->findAll(),
+            'notes' => $this->noteRepository->findAll(),
         ]);
     }
 
     #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request): Response
     {
         $form = $this->createForm(NoteType::class);
         $form->handleRequest($request);
@@ -32,8 +37,7 @@ class NoteController extends AbstractController
             /** @var Note $note */
             $note = $form->getData();
 
-            $entityManager->persist($note);
-            $entityManager->flush();
+            $this->noteRepository->persist($note, true);
 
             return $this->redirectToRoute('app_note_show', ['id' => $note->getId()], Response::HTTP_SEE_OTHER);
         }
@@ -43,7 +47,7 @@ class NoteController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'show', methods: ['GET'])]
+    #[Route('/{id}', name: 'show', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
     public function show(Note $note): Response
     {
         return $this->render('note/show.html.twig', [
@@ -51,14 +55,14 @@ class NoteController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Note $note, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/edit', name: 'edit', requirements: ['id' => Requirement::UUID], methods: ['GET', 'POST'])]
+    public function edit(Request $request, Note $note): Response
     {
         $form = $this->createForm(NoteType::class, $note);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $this->noteRepository->flush();
 
             return $this->redirectToRoute('app_note_show', ['id' => $note->getId()], Response::HTTP_SEE_OTHER);
         }
@@ -69,12 +73,11 @@ class NoteController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'delete', methods: ['POST'])]
-    public function delete(Request $request, Note $note, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}', name: 'delete', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    public function delete(Request $request, Note $note): Response
     {
         if ($this->isCsrfTokenValid('delete'.$note->getId(), (string) $request->request->get('_token'))) {
-            $entityManager->remove($note);
-            $entityManager->flush();
+            $this->noteRepository->remove($note, true);
         }
 
         return $this->redirectToRoute('app_note_index', [], Response::HTTP_SEE_OTHER);
