@@ -12,7 +12,18 @@
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
     </head>
-    <body class="container">
-        {% block body %}{% endblock %}
+    <body>
+        <div class="container py-3 mb-5">
+            <div class="row">
+                {% block body %}{% endblock %}
+            </div>
+        </div>
+        <nav class="navbar fixed-bottom bg-body-tertiary px-4 py-4 navbar-expand">
+            <div class="container-fluid">
+                <ul class="navbar-nav me-auto">
+{#                    <li class="nav-item"><a class="nav-link" href="{{ path('app_main_index') }}">home</a></li>#}
+                </ul>
+            </div>
+        </nav>
     </body>
 </html>

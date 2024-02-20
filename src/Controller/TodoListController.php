@@ -20,14 +20,6 @@ class TodoListController extends AbstractController
     ) {
     }
 
-    #[Route(name: 'list_index', methods: ['GET'])]
-    public function index(): Response
-    {
-        return $this->render('todo_list/index.html.twig', [
-            'todo_lists' => $this->listRepository->findAll(),
-        ]);
-    }
-
     #[Route('/new', name: 'list_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
@@ -40,19 +32,11 @@ class TodoListController extends AbstractController
 
             $this->listRepository->persist($list, true);
 
-            return $this->redirectToRoute('app_todo_list_show', ['id' => $list->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_main_index', status: Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('todo_list/new.html.twig', [
             'form' => $form,
-        ]);
-    }
-
-    #[Route('/{id}', name: 'list_show', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
-    public function show(TodoList $todoList): Response
-    {
-        return $this->render('todo_list/show.html.twig', [
-            'todo_list' => $todoList,
         ]);
     }
 
@@ -65,7 +49,7 @@ class TodoListController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->listRepository->flush();
 
-            return $this->redirectToRoute('app_todo_list_show', ['id' => $todoList->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_main_index', status: Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('todo_list/edit.html.twig', [
@@ -81,7 +65,7 @@ class TodoListController extends AbstractController
             $this->listRepository->remove($todoList, true);
         }
 
-        return $this->redirectToRoute('app_todo_list_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_main_index', status: Response::HTTP_SEE_OTHER);
     }
 
     #[Route(

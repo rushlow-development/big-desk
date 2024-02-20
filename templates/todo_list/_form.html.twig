@@ -1,18 +1,27 @@
 <div {{ stimulus_controller('task', {
     'index': form.tasks|length > 0 ? form.tasks|last.vars.name + 1 : 0,
     'formPrototype': form_widget(form.tasks.vars.prototype)
-    }) }}>
-{{ form_start(form) }}
-    <ul class="items"
-        {{ stimulus_target('task', 'taskList') }}
-    >
-        {% for task in form.tasks %}
-            <li>{{ form_row(task) }}</li>
-        {% endfor %}
-    </ul>
-    <button type="button" id="add-task" class="btn btn-outline-success"
-            {{ stimulus_action('task', 'addTaskForm') }}
-    >Add Item</button>
-    <button class="btn">{{ button_label|default('Save') }}</button>
-{{ form_end(form) }}
+}) }}>
+    {{ form_start(form) }}
+        {{ form_row(form.name) }}
+
+        <p class="lead">Tasks:
+            <button type="button" id="add-task" class="btn text-success"
+                {{ stimulus_action('task', 'addTaskForm') }}
+            >{{ include('svg/plus-circle.html.twig') }}</button>
+        </p>
+
+        <div class="items"
+            {{ stimulus_target('task', 'taskList') }}
+        >
+            {% for task in form.tasks %}
+                <div class="input-group mb-3">
+                    {{ form_widget(task) }}
+                </div>
+            {% endfor %}
+        </div>
+
+        <button class="btn btn-outline-success">{{ button_label|default('Save') }}</button>
+        <a href="{{ path('app_main_index') }}" class="btn btn-outline-warning">Cancel</a>
+    {{ form_end(form) }}
 </div>
