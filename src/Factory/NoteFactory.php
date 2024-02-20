@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Factory;
+namespace App\Factory;
 
 use App\Entity\Note;
 use App\Repository\NoteRepository;
@@ -51,6 +51,11 @@ final class NoteFactory extends ModelFactory
         return [
             'title' => self::faker()->sentence(),
         ];
+    }
+
+    public function withContent(): self
+    {
+        return $this->addState(['content' => self::faker()->paragraph()]);
     }
 
     #[\Override]

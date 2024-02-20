@@ -19,14 +19,6 @@ class NoteController extends AbstractController
     ) {
     }
 
-    #[Route(name: 'index', methods: ['GET'])]
-    public function index(): Response
-    {
-        return $this->render('note/index.html.twig', [
-            'notes' => $this->noteRepository->findAll(),
-        ]);
-    }
-
     #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
@@ -39,19 +31,11 @@ class NoteController extends AbstractController
 
             $this->noteRepository->persist($note, true);
 
-            return $this->redirectToRoute('app_note_show', ['id' => $note->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_main_index', status: Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('note/new.html.twig', [
             'form' => $form,
-        ]);
-    }
-
-    #[Route('/{id}', name: 'show', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
-    public function show(Note $note): Response
-    {
-        return $this->render('note/show.html.twig', [
-            'note' => $note,
         ]);
     }
 
@@ -64,7 +48,7 @@ class NoteController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->noteRepository->flush();
 
-            return $this->redirectToRoute('app_note_show', ['id' => $note->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_main_index', status: Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('note/edit.html.twig', [
@@ -80,6 +64,6 @@ class NoteController extends AbstractController
             $this->noteRepository->remove($note, true);
         }
 
-        return $this->redirectToRoute('app_note_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_main_index', status: Response::HTTP_SEE_OTHER);
     }
 }

@@ -20,7 +20,8 @@ export default class extends Controller {
     }
 
     addTaskForm() {
-        let lineItem = document.createElement('li');
+        let lineItem = document.createElement('div');
+        lineItem.classList.add('input-group', 'mb-3')
 
         lineItem.innerHTML = this.formPrototypeValue.replace(/__name__/g, this.indexValue);
 
@@ -34,7 +35,7 @@ export default class extends Controller {
     addRemoveButton(task) {
         let removeButton = document.createElement('button');
         removeButton.innerText = 'X';
-        removeButton.classList.add('btn', 'btn-outline-danger');
+        removeButton.classList.add('btn', 'btn-outline-danger', 'ms-2');
 
         removeButton.addEventListener('click', (e) => {
             e.preventDefault();

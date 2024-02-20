@@ -2,8 +2,8 @@
 
 namespace App\Tests\Functional\Controller;
 
+use App\Factory\NoteFactory;
 use App\Repository\NoteRepository;
-use App\Tests\Factory\NoteFactory;
 use App\Tests\FunctionalTestCase;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -17,18 +17,8 @@ class NoteControllerTest extends FunctionalTestCase
     protected function setUp(): void
     {
         $this->client = static::createClient();
+        $this->client->catchExceptions(false);
         $this->repository = static::getContainer()->get(NoteRepository::class);
-    }
-
-    public function testIndex(): void
-    {
-        $this->client->request('GET', $this->path);
-
-        self::assertResponseStatusCodeSame(200);
-        self::assertPageTitleContains('Note index');
-
-        // Use the $crawler to perform additional assertions e.g.
-        // self::assertSame('Some text on the page', $crawler->filter('.p')->first());
     }
 
     public function testNew(): void
@@ -42,21 +32,9 @@ class NoteControllerTest extends FunctionalTestCase
             'note[content]' => 'Testing',
         ]);
 
-        self::assertResponseRedirects(sprintf('/note/%s', $this->repository->findAll()[0]->getId()));
+        self::assertResponseRedirects('/');
 
         self::assertCount(1, $this->repository->findAll());
-    }
-
-    public function testShow(): void
-    {
-        $fixture = NoteFactory::createOne();
-
-        $this->client->request('GET', sprintf('%s/%s', $this->path, $fixture->getId()));
-
-        self::assertResponseStatusCodeSame(200);
-        self::assertPageTitleContains('Note');
-
-        // Use assertions to check that the properties are properly displayed.
     }
 
     public function testEdit(): void
@@ -70,7 +48,7 @@ class NoteControllerTest extends FunctionalTestCase
             'note[content]' => 'Something Short',
         ]);
 
-        self::assertResponseRedirects(sprintf('%s/%s', $this->path, $fixture->getId()));
+        self::assertResponseRedirects('/');
 
         $fixture = $this->repository->findAll();
 
@@ -82,10 +60,10 @@ class NoteControllerTest extends FunctionalTestCase
     {
         $fixture = NoteFactory::createOne();
 
-        $this->client->request('GET', sprintf('%s/%s', $this->path, $fixture->getId()));
+        $this->client->request('GET', sprintf('%s/%s/edit', $this->path, $fixture->getId()));
         $this->client->submitForm('Delete');
 
-        self::assertResponseRedirects($this->path);
+        self::assertResponseRedirects('/');
         self::assertCount(0, $this->repository->findAll());
     }
 }
