@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Task;
 use App\Entity\TodoList;
 use App\Form\TodoListType;
 use App\Repository\TodoListRepository;
@@ -23,7 +24,7 @@ class TodoListController extends AbstractController
     #[Route('/new', name: 'list_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
-        $form = $this->createForm(TodoListType::class);
+        $form = $this->createForm(TodoListType::class, new TodoList(''));
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -69,20 +70,14 @@ class TodoListController extends AbstractController
     }
 
     #[Route(
-        path: '/{id}/task/remove/{number}',
+        path: '/{id}/task/remove/{task}',
         name: 'task_remove',
-        requirements: ['id' => Requirement::UUID, 'number' => Requirement::DIGITS],
+        requirements: ['id' => Requirement::UUID, 'task' => Requirement::UUID],
         methods: ['POST']
     )]
-    public function removeTask(TodoList $todoList, int $number): JsonResponse
+    public function removeTask(TodoList $todoList, Task $task): JsonResponse
     {
-        $tasks = $todoList->getTasks();
-
-        if (!\array_key_exists($number, $tasks)) {
-            return $this->json(['error' => 'Task index does not exist.'], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        $todoList->removeTask($tasks[$number]);
+        $todoList->removeTask($task);
 
         $this->listRepository->flush();
 

@@ -3,6 +3,7 @@
 namespace App\Tests\Functional\Controller;
 
 use App\Entity\TodoList;
+use App\Factory\TaskFactory;
 use App\Factory\TodoListFactory;
 use App\Repository\TodoListRepository;
 use App\Tests\FunctionalTestCase;
@@ -33,14 +34,17 @@ class TodoListControllerTest extends FunctionalTestCase
     {
         $fixture = TodoListFactory::createOne([
             'name' => 'My Daily Tasks',
-            'tasks' => ['old todo'],
         ]);
+
+        $task = TaskFactory::createOne(['name' => 'old todo', 'todoList' => $fixture]);
+
+        $fixture->addTask($task->object());
 
         $this->client->request('GET', sprintf('%s/%s/edit', $this->path, $fixture->getId()));
 
         $this->client->submitForm('Update', [
             'todo_list[name]' => 'Weekly Tasks',
-            'todo_list[tasks][0]' => 'Something New',
+            'todo_list[tasks][0][name]' => 'Something New',
         ]);
 
         self::assertResponseRedirects('/');
@@ -49,7 +53,7 @@ class TodoListControllerTest extends FunctionalTestCase
         $fixture = $this->repository->findAll()[0];
 
         self::assertCount(1, $fixture->getTasks());
-        self::assertEquals([1 => 'Something New'], $fixture->getTasks());
+        self::assertSame('Something New', $fixture->getTasks()[0]->getName()); // @phpstan-ignore-line
         self::assertSame('Weekly Tasks', $fixture->getName());
     }
 
@@ -66,11 +70,16 @@ class TodoListControllerTest extends FunctionalTestCase
 
     public function testRemoveTaskFromAjaxRequest(): void
     {
-        $fixture = TodoListFactory::new()->withTasks()->create();
+        $fixture = TodoListFactory::new()->create();
 
-        $taskId = array_keys($fixture->getTasks(), 'Drink some beer');
+        $taskFixtures = TaskFactory::createMany(2, ['todoList' => $fixture]);
+        $taskFixtures[] = $toBeRemoved = TaskFactory::createOne(['todoList' => $fixture]);
 
-        $this->client->request('POST', sprintf('%s/%s/task/remove/%s', $this->path, $fixture->getId(), $taskId[0]));
+        foreach ($taskFixtures as $taskFixture) {
+            $fixture->addTask($taskFixture->object());
+        }
+
+        $this->client->request('POST', sprintf('%s/%s/task/remove/%s', $this->path, $fixture->getId(), $toBeRemoved->getId()));
 
         self::assertCount(2, $fixture->getTasks());
     }

@@ -50,15 +50,7 @@ final class TodoListFactory extends ModelFactory
     {
         return [
             'name' => self::faker()->sentence(),
-            'tasks' => [],
         ];
-    }
-
-    public function withTasks(): self
-    {
-        $tasks = ['Write some code', 'Merge a PR', 'Drink some beer'];
-
-        return $this->addState(['tasks' => $tasks]);
     }
 
     #[\Override]

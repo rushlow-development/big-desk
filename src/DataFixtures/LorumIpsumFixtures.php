@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Factory\NoteFactory;
+use App\Factory\TaskFactory;
 use App\Factory\TodoListFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -13,6 +14,10 @@ class LorumIpsumFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         NoteFactory::new()->withContent()->createMany(10);
-        TodoListFactory::new()->withTasks()->createMany(2);
+        $todoLists = TodoListFactory::createMany(3);
+
+        foreach ($todoLists as $todoList) {
+            TaskFactory::createMany(3, ['todoList' => $todoList]);
+        }
     }
 }

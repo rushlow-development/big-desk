@@ -16,11 +16,11 @@ class TodoListControllerTest extends PantherTestCase
 
         $this->clickButton('#add-task');
 
-        $this->client->waitFor('#todo_list_tasks_0');
+        $this->client->waitFor('#todo_list_tasks_0_name');
 
         $this->client->submitForm('Save', [
             'todo_list[name]' => 'My List',
-            'todo_list[tasks][0]' => 'new task',
+            'todo_list[tasks][0][name]' => 'new task',
         ]);
 
         $this->client->waitFor('.task-item');
