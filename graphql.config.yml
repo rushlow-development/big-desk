@@ -1,0 +1,5 @@
+schema:
+    - https://api.github.com/graphql:
+          headers:
+              Authorization: bearer ${GITHUB_API_KEY}
+documents: '**/*.graphql'
