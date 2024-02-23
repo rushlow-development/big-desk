@@ -14,13 +14,13 @@
                 <div class="row">
                     <div class="col bg-dark-subtle rounded mb-3 mt-2 p-4">
                         <p class="lead text-secondary">
-                            {{ note.title }}
+                            {{ note.title|markdown_to_html }}
                             <a href="{{ path('app_note_edit', {'id': note.id}) }}" class="btn btn-sm text-success">
                                 {{ include('svg/pencil.html.twig') }}
                             </a>
                         </p>
                         <div>
-                            {{ note.content }}
+                            {{ note.content|markdown_to_html }}
                         </div>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
             {% for todo in todos %}
                 <div class="bg-dark-subtle rounded my-2 mb-4 p-4">
                     <p class="lead text-secondary">
-                        {{ todo.name }}
+                        {{ todo.name|markdown_to_html }}
                         <a href="{{ path('app_todo_list_edit', {'id': todo.id}) }}" class="btn btn-sm text-success">
                             {{ include('svg/pencil.html.twig') }}
                         </a>
@@ -43,7 +43,7 @@
                     <ul class="list-group list-group-flush" {{ stimulus_controller('task_dashboard', {'todoListId': todo.id}) }}>
                         {% for index_id, task in todo.tasks %}
                             <li class="task-item list-group-item d-flex justify-content-between align-items-center bg-dark-subtle">
-                                {{ task }}
+                                {{ task|markdown_to_html }}
                                 <button
                                     type="button"
                                     class="btn btn-sm text-danger"
