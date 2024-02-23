@@ -20,18 +20,23 @@ class GitHubPullRequestType extends JsonType
             $value = stream_get_contents($value);
         }
 
+        if (!\is_string($value)) {
+            return null;
+        }
+
         try {
-            $data = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+            /** @var array<string, string|int|null> $data */
+            $data = json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw ValueNotConvertible::new($value, 'json', $e->getMessage(), $e);
         }
 
         return new GitHubPullRequest(
-            uri: $data['uri'],
-            owner: $data['owner'],
-            repo: $data['repo'],
-            number: $data['number'],
-            title: $data['title'],
+            uri: (string) $data['uri'],
+            owner: (string) $data['owner'],
+            repo: (string) $data['repo'],
+            number: (int) $data['number'],
+            title: null === $data['title'] ? null : (string) $data['title'],
         );
     }
 }

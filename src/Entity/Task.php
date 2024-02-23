@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Model\GitHubPullRequest;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -15,6 +16,9 @@ class Task extends AbstractEntity
         #[ORM\ManyToOne(inversedBy: 'tasks')]
         #[ORM\JoinColumn(nullable: false)]
         private TodoList $todoList,
+
+        #[ORM\Column(type: 'pull_request_type', nullable: true)]
+        private ?GitHubPullRequest $pullRequest = null
     ) {
         parent::__construct();
     }
@@ -39,6 +43,22 @@ class Task extends AbstractEntity
     public function setTodoList(TodoList $todoList): static
     {
         $this->todoList = $todoList;
+
+        return $this;
+    }
+
+    public function getFormattedName(): string
+    {
+        if (null === $this->pullRequest) {
+            return $this->name;
+        }
+
+        return str_replace($this->pullRequest->uri, sprintf('[%s](%s)', $this->pullRequest->title, $this->pullRequest->uri), $this->name);
+    }
+
+    public function setPullRequest(GitHubPullRequest $pullRequest): self
+    {
+        $this->pullRequest = $pullRequest;
 
         return $this;
     }

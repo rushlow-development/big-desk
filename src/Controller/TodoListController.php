@@ -4,8 +4,13 @@ namespace App\Controller;
 
 use App\Entity\Task;
 use App\Entity\TodoList;
+use App\Exception\HttpClientException;
 use App\Form\TodoListType;
+use App\Model\GitHubPullRequest;
+use App\Repository\TaskRepository;
 use App\Repository\TodoListRepository;
+use App\Service\TaskService;
+use App\Util\UrlParser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 
 #[Route('/todo', name: 'app_todo_')]
-class TodoListController extends AbstractController
+final class TodoListController extends AbstractController
 {
     public function __construct(
         private readonly TodoListRepository $listRepository,
@@ -22,7 +27,7 @@ class TodoListController extends AbstractController
     }
 
     #[Route('/new', name: 'list_new', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
+    public function new(Request $request, TaskService $taskService, TaskRepository $taskRepository): Response
     {
         $form = $this->createForm(TodoListType::class, new TodoList(''));
         $form->handleRequest($request);
@@ -30,6 +35,26 @@ class TodoListController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var TodoList $list */
             $list = $form->getData();
+
+            foreach ($list->getTasks() as $task) {
+                $gitHubLink = UrlParser::getGitHubUrlFromText($task->getName());
+
+                if (false === $gitHubLink) {
+                    continue;
+                }
+
+                try {
+                    // We want to query GitHub to grab the information about the link
+                    $data = $taskService->getGitHubDataFromUrl($gitHubLink);
+                } catch (HttpClientException) {
+                    // @TODO - Do something with this in the future...
+                    continue;
+                }
+
+                if ($data instanceof GitHubPullRequest) {
+                    $task->setPullRequest($data);
+                }
+            }
 
             $this->listRepository->persist($list, true);
 
