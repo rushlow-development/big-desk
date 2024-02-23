@@ -90,7 +90,23 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
-        "panther-drivers": "vendor/bin/bdi detect drivers"
+        "panther-drivers": "vendor/bin/bdi detect drivers",
+        "upgrade-tools": {
+            "upgrade-php-cs-fixer": "composer upgrade -d tools/php-cs-fixer",
+            "upgrade-phpstan": "composer upgrade -d tools/phpstan",
+            "upgrade-rector": "composer upgrade -d tools/rector",
+            "upgrade-twigcs": "composer upgrade -d tools/twigcs"
+        },
+        "run:php-cs-fixer": "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix",
+        "run:phpstan": "tools/phpstan/vendor/bin/phpstan --memory-limit=1G",
+        "run:rector": "tools/rector/vendor/bin/rector process --clear-cache",
+        "run:twigcs": "tools/twigcs/vendor/bin/twigcs --config .twigcs.dist.php",
+        "run:tools": [
+            "@run:rector",
+            "@run:php-cs-fixer",
+            "@run:twigcs",
+            "@run:phpstan"
+        ]
     },
     "conflict": {
         "symfony/symfony": "*"
