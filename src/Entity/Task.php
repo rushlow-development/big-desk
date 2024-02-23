@@ -53,7 +53,9 @@ class Task extends AbstractEntity
             return $this->name;
         }
 
-        return str_replace($this->pullRequest->uri, sprintf('[%s](%s)', $this->pullRequest->title, $this->pullRequest->uri), $this->name);
+        return str_replace($this->pullRequest->uri, sprintf(
+            '[(%s %s) %s](%s)', $this->pullRequest->repo, $this->pullRequest->number, $this->pullRequest->title, $this->pullRequest->uri
+        ), $this->name);
     }
 
     public function setPullRequest(GitHubPullRequest $pullRequest): self
