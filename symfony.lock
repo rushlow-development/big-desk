@@ -52,6 +52,9 @@
             "tests/bootstrap.php"
         ]
     },
+    "rushlow-development/serialize-type-bundle": {
+        "version": "dev-main"
+    },
     "symfony/asset-mapper": {
         "version": "7.0",
         "recipe": {

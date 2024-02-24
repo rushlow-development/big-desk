@@ -43,8 +43,6 @@ final class TodoListController extends AbstractController
 
             $this->listRepository->persist($list, true);
 
-            dump($list);
-
             return $this->redirectToRoute('app_main_index', status: Response::HTTP_SEE_OTHER);
         }
 

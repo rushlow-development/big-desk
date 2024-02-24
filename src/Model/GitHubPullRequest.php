@@ -2,11 +2,12 @@
 
 namespace App\Model;
 
-use App\Contract\MagicSerializableInterface;
+use RD\SerializeTypeBundle\SerializableTypeInterface;
+use RD\SerializeTypeBundle\SerializableTypeTrait;
 
-final class GitHubPullRequest implements MagicSerializableInterface
+final class GitHubPullRequest implements SerializableTypeInterface
 {
-    use SerializableTrait;
+    use SerializableTypeTrait;
 
     public function __construct(
         public string $uri,
