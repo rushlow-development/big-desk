@@ -4,7 +4,7 @@ namespace App\Model;
 
 use App\Contract\MagicSerializableInterface;
 
-final class GitHubPullRequest implements MagicSerializableInterface
+final class GitHubIssue implements MagicSerializableInterface
 {
     use SerializableTrait;
 

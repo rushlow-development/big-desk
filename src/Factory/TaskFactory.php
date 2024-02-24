@@ -4,6 +4,7 @@ namespace App\Factory;
 
 use App\Entity\Task;
 use App\Repository\TaskRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Zenstruck\Foundry\ModelFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
@@ -51,6 +52,7 @@ final class TaskFactory extends ModelFactory
         return [
             'name' => self::faker()->text(255),
             'todoList' => TodoListFactory::new(),
+            'github' => new ArrayCollection(),
         ];
     }
 

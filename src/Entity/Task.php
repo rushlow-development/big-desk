@@ -2,8 +2,11 @@
 
 namespace App\Entity;
 
+use App\Model\GitHubIssue;
 use App\Model\GitHubPullRequest;
 use App\Repository\TaskRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
@@ -17,8 +20,9 @@ class Task extends AbstractEntity
         #[ORM\JoinColumn(nullable: false)]
         private TodoList $todoList,
 
-        #[ORM\Column(type: 'pull_request_type', nullable: true)]
-        private ?GitHubPullRequest $pullRequest = null
+        /** @var Collection<int, GitHubIssue|GitHubPullRequest> */
+        #[ORM\Column(type: 'serialized')]
+        private Collection $github = new ArrayCollection(),
     ) {
         parent::__construct();
     }
@@ -49,18 +53,32 @@ class Task extends AbstractEntity
 
     public function getFormattedName(): string
     {
-        if (null === $this->pullRequest) {
-            return $this->name;
+        $message = $this->name;
+
+        foreach ($this->github as $gitHubObject) {
+            $replacement = sprintf('[(%s %s) %s](%s)', $gitHubObject->repo, $gitHubObject->number, $gitHubObject->title, $gitHubObject->uri);
+            $message = str_replace($gitHubObject->uri, $replacement, $message);
         }
 
-        return str_replace($this->pullRequest->uri, sprintf(
-            '[(%s %s) %s](%s)', $this->pullRequest->repo, $this->pullRequest->number, $this->pullRequest->title, $this->pullRequest->uri
-        ), $this->name);
+        return $message;
     }
 
-    public function setPullRequest(GitHubPullRequest $pullRequest): self
+    /** @return Collection<int, GitHubIssue|GitHubPullRequest> */
+    public function getGitHubObjects(): Collection
     {
-        $this->pullRequest = $pullRequest;
+        return $this->github;
+    }
+
+    public function addGitHub(GitHubPullRequest|GitHubIssue $object): self
+    {
+        $this->github->add($object);
+
+        return $this;
+    }
+
+    public function removeGitHub(GitHubPullRequest|GitHubIssue $object): self
+    {
+        $this->github->removeElement($object);
 
         return $this;
     }

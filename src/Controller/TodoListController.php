@@ -6,6 +6,7 @@ use App\Entity\Task;
 use App\Entity\TodoList;
 use App\Exception\HttpClientException;
 use App\Form\TodoListType;
+use App\Model\GitHubIssue;
 use App\Model\GitHubPullRequest;
 use App\Repository\TaskRepository;
 use App\Repository\TodoListRepository;
@@ -37,26 +38,12 @@ final class TodoListController extends AbstractController
             $list = $form->getData();
 
             foreach ($list->getTasks() as $task) {
-                $gitHubLink = UrlParser::getGitHubUrlFromText($task->getName());
-
-                if (false === $gitHubLink) {
-                    continue;
-                }
-
-                try {
-                    // We want to query GitHub to grab the information about the link
-                    $data = $taskService->getGitHubDataFromUrl($gitHubLink);
-                } catch (HttpClientException) {
-                    // @TODO - Do something with this in the future...
-                    continue;
-                }
-
-                if ($data instanceof GitHubPullRequest) {
-                    $task->setPullRequest($data);
-                }
+                $this->checkForGitHub($task, $taskService);
             }
 
             $this->listRepository->persist($list, true);
+
+            dump($list);
 
             return $this->redirectToRoute('app_main_index', status: Response::HTTP_SEE_OTHER);
         }
@@ -67,12 +54,16 @@ final class TodoListController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'list_edit', requirements: ['id' => Requirement::UUID], methods: ['GET', 'POST'])]
-    public function edit(Request $request, TodoList $todoList): Response
+    public function edit(Request $request, TodoList $todoList, TaskService $taskService): Response
     {
         $form = $this->createForm(TodoListType::class, $todoList);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            foreach ($todoList->getTasks() as $task) {
+                $this->checkForGitHub($task, $taskService);
+            }
+
             $this->listRepository->flush();
 
             return $this->redirectToRoute('app_main_index', status: Response::HTTP_SEE_OTHER);
@@ -107,5 +98,26 @@ final class TodoListController extends AbstractController
         $this->listRepository->flush();
 
         return $this->json(['Ok']);
+    }
+
+    protected function checkForGitHub(Task $task, TaskService $taskService): void
+    {
+        $gitHubLink = UrlParser::getGitHubUrlFromText($task->getName());
+
+        if (false === $gitHubLink) {
+            return;
+        }
+
+        try {
+            // We want to query GitHub to grab the information about the link
+            $data = $taskService->getGitHubDataFromUrl($gitHubLink);
+        } catch (HttpClientException) {
+            // @TODO - Do something with this in the future...
+            return;
+        }
+
+        if ($data instanceof GitHubIssue || $data instanceof GitHubPullRequest) {
+            $task->addGitHub($data);
+        }
     }
 }

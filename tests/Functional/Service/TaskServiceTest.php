@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional\Service;
 
+use App\Model\GitHubIssue;
 use App\Model\GitHubPullRequest;
 use App\Model\GitHubUrlData;
 use App\Service\TaskService;
@@ -76,6 +77,43 @@ final class TaskServiceTest extends FunctionalTestCase
         $requestBody = $mockResponse->getRequestOptions()['body'];
 
         self::assertStringContainsString('pullRequest(', $requestBody);
+        self::assertStringContainsString('\u0022repository_owner\u0022:\u0022rushlow\u0022', $requestBody);
+        self::assertStringContainsString('\u0022repository_name\u0022:\u0022big-desk\u0022', $requestBody);
+        self::assertStringContainsString('\u0022number\u0022:100', $requestBody);
+    }
+
+    public function testGetGitHubDataFromUrlWithIssue(): void
+    {
+        $urlDataFixture = new GitHubUrlData(
+            owner: 'rushlow',
+            repository: 'big-desk',
+            type: TypeEnum::ISSUE,
+            identifier: '100', // Set as a string to ensure it's converted to an int
+            uri: 'https://github.com/rushlow/big-desk/issues/100'
+        );
+
+        $expected = new GitHubIssue(
+            uri: 'https://github.com/rushlow/big-desk/issues/100',
+            owner: 'rushlow',
+            repo: 'big-desk',
+            number: 100,
+            title: 'Add a maker for Doctrine migrations',
+        );
+
+        $mockResponse = new MockResponse((string) file_get_contents(__DIR__.'/GraphQLResponseFixture/issue.200.json'));
+        $mockHttpClient = new MockHttpClient($mockResponse);
+
+        $service = new TaskService($mockHttpClient);
+        $result = $service->getGitHubDataFromUrl($urlDataFixture);
+
+        self::assertEquals($expected, $result);
+
+        self::assertSame('https://example.com/graphql', $mockResponse->getRequestUrl());
+        self::assertSame('POST', $mockResponse->getRequestMethod());
+
+        $requestBody = $mockResponse->getRequestOptions()['body'];
+
+        self::assertStringContainsString('issue(', $requestBody);
         self::assertStringContainsString('\u0022repository_owner\u0022:\u0022rushlow\u0022', $requestBody);
         self::assertStringContainsString('\u0022repository_name\u0022:\u0022big-desk\u0022', $requestBody);
         self::assertStringContainsString('\u0022number\u0022:100', $requestBody);

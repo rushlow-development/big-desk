@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Exception\HttpClientException;
+use App\Model\GitHubIssue;
 use App\Model\GitHubPullRequest;
 use App\Model\GitHubUrlData;
 use App\Util\TypeEnum;
@@ -27,13 +28,45 @@ final readonly class TaskService
     }
 
     /** @throws HttpClientException */
-    public function getGitHubDataFromUrl(GitHubUrlData $urlData): ?GitHubPullRequest
+    public function getGitHubDataFromUrl(GitHubUrlData $urlData): GitHubPullRequest|GitHubIssue|null
     {
         if (TypeEnum::PULL_REQUEST === $urlData->type) {
             return $this->queryPullRequest($urlData);
         }
 
+        if (TypeEnum::ISSUE === $urlData->type) {
+            return $this->queryIssue($urlData);
+        }
+
         return null;
+    }
+
+    private function queryIssue(GitHubUrlData $urlData): ?GitHubIssue
+    {
+        if (!$payload = file_get_contents($filename = __DIR__.'/../GraphQLRequest/issue.graphql')) {
+            throw new HttpClientException(sprintf('Unable to read payload contents for: %s', $filename));
+        }
+
+        $response = $this->makeRequest(
+            $payload,
+            [
+                'repository_owner' => $urlData->owner,
+                'repository_name' => $urlData->repository,
+                'number' => (int) $urlData->identifier,
+            ]
+        );
+
+        if (!$response) {
+            return null;
+        }
+
+        return new GitHubIssue(
+            uri: $urlData->uri,
+            owner: $urlData->owner,
+            repo: $urlData->repository,
+            number: (int) $urlData->identifier,
+            title: (string) $response['data']['repository']['issue']['title'],
+        );
     }
 
     /** @throws HttpClientException */
@@ -92,7 +125,7 @@ final readonly class TaskService
             throw new HttpClientException('Unable to convert payload variables to json.', previous: $e);
         }
 
-        if (empty($data['data']['repository']['pullRequest']['title'])) { // @phpstan-ignore-line
+        if (empty($data['data']['repository'])) { // @phpstan-ignore-line
             return null;
         }
 

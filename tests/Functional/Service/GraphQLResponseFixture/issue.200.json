@@ -1,0 +1,9 @@
+{
+    "data": {
+        "repository": {
+            "issue": {
+                "title": "Add a maker for Doctrine migrations"
+            }
+        }
+    }
+}
