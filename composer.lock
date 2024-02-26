@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8965e98bdcc5198a3dc43d42fee02dcf",
+    "content-hash": "a366a039ed3c9e573c6a7e4891f49fba",
     "packages": [
         {
             "name": "composer/semver",
@@ -2049,16 +2049,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.25.0",
+            "version": "1.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "bd84b629c8de41aa2ae82c067c955e06f1b00240"
+                "reference": "231e3186624c03d7e7c890ec662b81e6b0405227"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/bd84b629c8de41aa2ae82c067c955e06f1b00240",
-                "reference": "bd84b629c8de41aa2ae82c067c955e06f1b00240",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/231e3186624c03d7e7c890ec662b81e6b0405227",
+                "reference": "231e3186624c03d7e7c890ec662b81e6b0405227",
                 "shasum": ""
             },
             "require": {
@@ -2090,9 +2090,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.25.0"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.26.0"
             },
-            "time": "2024-01-04T17:06:16+00:00"
+            "time": "2024-02-23T16:05:55+00:00"
         },
         {
             "name": "psr/cache",
@@ -2399,6 +2399,61 @@
                 "source": "https://github.com/php-fig/log/tree/3.0.0"
             },
             "time": "2021-07-14T16:46:02+00:00"
+        },
+        {
+            "name": "rushlow-development/serialize-type-bundle",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rushlow-development/serialize-type-bundle",
+                "reference": "982f4d1a6d3ddecaca37a7ddf1a543eb743631d6"
+            },
+            "require": {
+                "doctrine/dbal": "^4.0",
+                "doctrine/doctrine-bundle": "^2.11",
+                "ext-json": "*",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "doctrine/orm": "^3.0",
+                "phpunit/phpunit": "^11.0",
+                "symfony/framework-bundle": "^7.0"
+            },
+            "default-branch": true,
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "RD\\SerializeTypeBundle\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "RD\\SerializeTypeBundle\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "tools:upgrade": {
+                    "tools:upgrade:php-cs-fixer": "composer upgrade -d tools/php-cs-fixer",
+                    "tools:upgrade:phpstan": "composer upgrade -d tools/phpstan",
+                    "tools:upgrade:rector": "composer upgrade -d tools/rector"
+                },
+                "tools:run": {
+                    "tools:run:rector": "tools/rector/vendor/bin/rector process --clear-cache",
+                    "tools:run:php-cs-fixer": "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix",
+                    "tools:run:phpstan": "tools/phpstan/vendor/bin/phpstan --memory-limit=1G"
+                }
+            },
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Jesse Rushlow",
+                    "email": "jr@rushlow.dev"
+                }
+            ],
+            "description": "WIP - Unstable - serialize value objects in Doctrine",
+            "time": "2024-02-26T15:33:55+00:00"
         },
         {
             "name": "symfony/asset",
@@ -10921,7 +10976,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "rushlow-development/serialize-type-bundle": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

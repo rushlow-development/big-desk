@@ -20,12 +20,14 @@ export default class extends Controller {
     }
 
     addTaskForm() {
-        let lineItem = document.createElement('div');
-        lineItem.classList.add('input-group', 'mb-3')
+        let lineItem = document.createElement('span');
 
         lineItem.innerHTML = this.formPrototypeValue.replace(/__name__/g, this.indexValue);
+        const divWrapper = lineItem.querySelector('div > div');
 
-        this.addRemoveButton(lineItem);
+        divWrapper.classList.add('input-group', 'mb-3')
+
+        this.addRemoveButton(divWrapper);
 
         this.taskListTarget.appendChild(lineItem);
 

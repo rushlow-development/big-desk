@@ -2,9 +2,16 @@
 
 namespace App\Controller;
 
+use App\Entity\Task;
 use App\Entity\TodoList;
+use App\Exception\HttpClientException;
 use App\Form\TodoListType;
+use App\Model\GitHubIssue;
+use App\Model\GitHubPullRequest;
+use App\Repository\TaskRepository;
 use App\Repository\TodoListRepository;
+use App\Service\TaskService;
+use App\Util\UrlParser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 
 #[Route('/todo', name: 'app_todo_')]
-class TodoListController extends AbstractController
+final class TodoListController extends AbstractController
 {
     public function __construct(
         private readonly TodoListRepository $listRepository,
@@ -21,14 +28,18 @@ class TodoListController extends AbstractController
     }
 
     #[Route('/new', name: 'list_new', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
+    public function new(Request $request, TaskService $taskService, TaskRepository $taskRepository): Response
     {
-        $form = $this->createForm(TodoListType::class);
+        $form = $this->createForm(TodoListType::class, new TodoList(''));
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var TodoList $list */
             $list = $form->getData();
+
+            foreach ($list->getTasks() as $task) {
+                $this->checkForGitHub($task, $taskService);
+            }
 
             $this->listRepository->persist($list, true);
 
@@ -41,12 +52,16 @@ class TodoListController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'list_edit', requirements: ['id' => Requirement::UUID], methods: ['GET', 'POST'])]
-    public function edit(Request $request, TodoList $todoList): Response
+    public function edit(Request $request, TodoList $todoList, TaskService $taskService): Response
     {
         $form = $this->createForm(TodoListType::class, $todoList);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            foreach ($todoList->getTasks() as $task) {
+                $this->checkForGitHub($task, $taskService);
+            }
+
             $this->listRepository->flush();
 
             return $this->redirectToRoute('app_main_index', status: Response::HTTP_SEE_OTHER);
@@ -69,23 +84,38 @@ class TodoListController extends AbstractController
     }
 
     #[Route(
-        path: '/{id}/task/remove/{number}',
+        path: '/{id}/task/remove/{task}',
         name: 'task_remove',
-        requirements: ['id' => Requirement::UUID, 'number' => Requirement::DIGITS],
+        requirements: ['id' => Requirement::UUID, 'task' => Requirement::UUID],
         methods: ['POST']
     )]
-    public function removeTask(TodoList $todoList, int $number): JsonResponse
+    public function removeTask(TodoList $todoList, Task $task): JsonResponse
     {
-        $tasks = $todoList->getTasks();
-
-        if (!\array_key_exists($number, $tasks)) {
-            return $this->json(['error' => 'Task index does not exist.'], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        $todoList->removeTask($tasks[$number]);
+        $todoList->removeTask($task);
 
         $this->listRepository->flush();
 
         return $this->json(['Ok']);
+    }
+
+    protected function checkForGitHub(Task $task, TaskService $taskService): void
+    {
+        $gitHubLink = UrlParser::getGitHubUrlFromText($task->getName());
+
+        if (false === $gitHubLink) {
+            return;
+        }
+
+        try {
+            // We want to query GitHub to grab the information about the link
+            $data = $taskService->getGitHubDataFromUrl($gitHubLink);
+        } catch (HttpClientException) {
+            // @TODO - Do something with this in the future...
+            return;
+        }
+
+        if ($data instanceof GitHubIssue || $data instanceof GitHubPullRequest) {
+            $task->addGitHub($data);
+        }
     }
 }

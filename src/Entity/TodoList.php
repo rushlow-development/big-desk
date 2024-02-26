@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TodoListRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -15,9 +17,9 @@ class TodoList extends AbstractEntity
         #[ORM\Column]
         private string $name,
 
-        /** @var string[] */
-        #[ORM\Column]
-        private array $tasks = [],
+        /** @var Collection<int, Task> */
+        #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'todoList', cascade: ['persist', 'remove'], orphanRemoval: true)]
+        private Collection $tasks = new ArrayCollection(),
     ) {
         parent::__construct();
     }
@@ -34,26 +36,24 @@ class TodoList extends AbstractEntity
         return $this;
     }
 
-    /** @return string[] */
-    public function getTasks(): array
+    /** @return Collection<int, Task> */
+    public function getTasks(): Collection
     {
         return $this->tasks;
     }
 
-    public function addTask(string $task): self
+    public function addTask(Task $task): self
     {
-        $this->tasks[] = $task;
+        if (!$this->tasks->contains($task)) {
+            $this->tasks->add($task);
+        }
 
         return $this;
     }
 
-    public function removeTask(string $task): self
+    public function removeTask(Task $task): self
     {
-        foreach ($this->tasks as $key => $value) {
-            if ($task === $value) {
-                unset($this->tasks[$key]);
-            }
-        }
+        $this->tasks->removeElement($task);
 
         return $this;
     }
