@@ -40,4 +40,10 @@ return [
     'axios' => [
         'version' => '1.6.7',
     ],
+    'luxon' => [
+        'version' => '3.4.4',
+    ],
+    'stimulus-use' => [
+        'version' => '0.52.2',
+    ],
 ];
