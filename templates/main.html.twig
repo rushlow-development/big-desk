@@ -7,7 +7,32 @@
         {.lead .text-secondary} {{ text }}
     {% endmacro %}
     <div class="row">
-        <div class="col me-1">
+        <div class="col-2 me-2">
+            <h1 class="mb-0">Timer
+                <a href="#" class="btn btn-sm text-success">
+                    {{ include('svg/plus-circle.html.twig') }}
+                </a>
+            </h1>
+            {% for timer in timers %}
+                <div class="row">
+                    {#                    <div class="col card bg-dark-subtle rounded mb-3 mt-2 p-4 position-relative">#}
+                    <div class="col card bg-dark-subtle rounded mb-3 mt-2 position-relative">
+                        <div class="card-body">
+                            <div class="card-text">
+                                {{ timer.duration|date('%h h %I min') }}
+                            </div>
+                            <div class="card-text">
+                                <small class="text-secondary">{{ timer.start|date("G:H") }} - {{ timer.stopped|date("G:H") }}</small>
+                            </div>
+                            <div class="card-text">
+                                <small class="text-secondary">{{ timer.start|date("M jS Y") }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col ms-2">
             <h1 class="mb-0">Notes
                 <a href="{{ path('app_note_new') }}" class="btn btn-sm text-success">
                     {{ include('svg/plus-circle.html.twig') }}
