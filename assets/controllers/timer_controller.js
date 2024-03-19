@@ -6,6 +6,8 @@ import { DateTime, Duration } from 'luxon';
 /* stimulusFetch: 'lazy */
 export default class extends Controller {
     #intervalId;
+    #startIcon;
+    #stopIcon;
 
     static debounces = ['runTimer', 'startTimer', 'stopTimer']
 
@@ -26,6 +28,8 @@ export default class extends Controller {
         useDebounce(this);
 
         this.setButtonVisibility();
+        this.#startIcon = this.timerStartButtonTarget.innerHTML;
+        this.#stopIcon = this.timerStopButtonTarget.innerHTML;
 
         if (this.timerRunningValue) {
             this.runTimer();
@@ -105,7 +109,7 @@ export default class extends Controller {
 
         this.timerStartButtonTarget.classList.toggle('hidden', true);
         this.timerStopButtonTarget.classList.toggle('hidden', false);
-        this.timerStartButtonTarget.innerHTML = 'Start';
+        this.timerStartButtonTarget.innerHTML = this.#startIcon;
     }
 
     async persistTimer() {
@@ -134,6 +138,6 @@ export default class extends Controller {
 
         this.timerStartButtonTarget.classList.toggle('hidden', false);
         this.timerStopButtonTarget.classList.toggle('hidden', true);
-        this.timerStopButtonTarget.innerHTML = 'Stop';
+        this.timerStopButtonTarget.innerHTML = this.#stopIcon;
     }
 }
