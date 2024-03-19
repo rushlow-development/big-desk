@@ -61,8 +61,10 @@ class TimeEntry extends AbstractEntity
         $started = $this->lastRestartedAt ?? $this->startedAt;
 
         $diff = $started->diffAsCarbonInterval(absolute: true);
-
-        $this->accumulatedTime->addSeconds($diff->totalSeconds);
+        $this->accumulatedTime
+            ->addSeconds($diff->totalSeconds)
+            ->cascade()
+        ;
 
         $this->running = false;
 

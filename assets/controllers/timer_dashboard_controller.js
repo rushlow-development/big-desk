@@ -13,7 +13,7 @@ export default class extends Controller {
 
     async startTimer() {
         let response = await axios
-            .post('/timer/start')
+            .post('/timer/create')
             .then((response) => {
                 if (response.status !== 200) {
                     // @TODO Show an alert of something...

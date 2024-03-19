@@ -14,18 +14,21 @@ use Symfony\Component\Routing\Requirement\Requirement;
 #[Route('/timer', name: 'app_timer_')]
 class TimerController extends AbstractController
 {
-    #[Route(path: '/start/{id}', name: 'new', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
-    public function startTimer(TimeEntryRepository $repository, ?TimeEntry $timeEntry = null): JsonResponse
+    public function __construct(
+        private readonly TimeEntryRepository $repository,
+    ) {
+    }
+
+    #[Route(path: '/create', name: 'create', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    public function createTimer(): JsonResponse
     {
         // @TODO CSRF
 
-        if (!$timeEntry instanceof TimeEntry) {
-            $timeEntry = new TimeEntry(startedAt: new CarbonImmutable());
-        }
+        $timeEntry = new TimeEntry(startedAt: new CarbonImmutable());
 
         $timeEntry->startTimer();
 
-        $repository->persist($timeEntry, flush: true);
+        $this->repository->persist($timeEntry, flush: true);
 
         return $this->json([
             'message' => 'OK',
@@ -35,28 +38,31 @@ class TimerController extends AbstractController
         ]);
     }
 
+    #[Route(path: '/start/{id}', name: 'start', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    public function startTimer(TimeEntry $timeEntry): JsonResponse
+    {
+        // @TODO CSRF
+
+        $timeEntry->startTimer();
+
+        $this->repository->flush();
+
+        return $this->json([
+            'message' => 'OK',
+            'accumulatedSeconds' => $timeEntry->getAccumulatedTime()->seconds,
+        ]);
+    }
+
     #[Route(path: '/pause/{id}', name: 'pause', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     public function pauseTimer(Request $request, TimeEntry $timeEntry, TimeEntryRepository $repository): JsonResponse
     {
-        //        $secondsElapsed = $request->getPayload()->getInt('accumulatedSinceLastStart');
-
-        //        $accumulatedTime = $timeEntry->getAccumulatedTime();
-        //        $accumulatedTime->addSeconds($secondsElapsed);
-
         $timeEntry->stopTimer();
 
         $repository->flush();
 
-        return $this->json(['message' => 'OK']);
+        return $this->json([
+            'message' => 'OK',
+            'accumulatedSeconds' => $timeEntry->getAccumulatedTime()->seconds,
+        ]);
     }
-
-    //    #[Route(path: '/stop/{id}', name: 'stop', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
-    //    public function stopTimer(TimeEntry $timeEntry, TimeEntryRepository $repository): JsonResponse
-    //    {
-    //        $timeEntry->setStopped(new CarbonImmutable());
-    //
-    //        $repository->flush();
-    //
-    //        return $this->json(['message' => 'OK']);
-    //    }
 }
