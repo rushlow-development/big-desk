@@ -22,7 +22,7 @@ class TimerControllerTest extends FunctionalTestCase
         self::assertCount(1, $repository->findAll());
     }
 
-    public function testStartTimer()
+    public function testStartTimer(): void
     {
         $client = static::createClient();
 
@@ -33,8 +33,11 @@ class TimerControllerTest extends FunctionalTestCase
         self::assertResponseIsSuccessful();
 
         $responseContent = $client->getResponse()->getContent();
+
         self::assertJsonStringEqualsJsonString(
-            json_encode(['message' => 'OK', 'accumulatedSeconds' => 0]),
+            /** @phpstan-ignore-next-line  */
+            json_encode(['message' => 'OK', 'accumulatedSeconds' => 0, 'restartedAt' => $timeEntry->getLastRestartedAt()->timestamp]),
+            /** @phpstan-ignore-next-line  */
             $responseContent
         );
     }
@@ -61,11 +64,8 @@ class TimerControllerTest extends FunctionalTestCase
 
         $responseContent = $client->getResponse()->getContent();
 
-        self::assertJsonStringEqualsJsonString(
-            json_encode(['message' => 'OK', 'accumulatedSeconds' => 120]),
-            $responseContent
-        );
-
+        /** @phpstan-ignore-next-line  */
+        self::assertJsonStringEqualsJsonString(json_encode(['message' => 'OK', 'accumulatedSeconds' => 120]), $responseContent);
         self::assertSame(120, (int) $timeEntry->getAccumulatedTime()->totalSeconds);
     }
 }

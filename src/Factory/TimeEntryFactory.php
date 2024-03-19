@@ -46,6 +46,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  */
 final class TimeEntryFactory extends ModelFactory
 {
+    #[\Override]
     protected function getDefaults(): array
     {
         return [
@@ -53,6 +54,7 @@ final class TimeEntryFactory extends ModelFactory
         ];
     }
 
+    #[\Override]
     protected static function getClass(): string
     {
         return TimeEntry::class;

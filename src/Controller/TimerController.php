@@ -48,7 +48,7 @@ class TimerController extends AbstractController
 
         return $this->json([
             'message' => 'OK',
-            'restartedAt' => $timeEntry->getLastRestartedAt()->timestamp,
+            'restartedAt' => $timeEntry->getLastRestartedAt()->timestamp ?? false,
             'accumulatedSeconds' => $timeEntry->getAccumulatedTime()->totalSeconds,
         ]);
     }
