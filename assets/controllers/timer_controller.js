@@ -32,7 +32,7 @@ export default class extends Controller {
         this.#stopIcon = this.timerStopButtonTarget.innerHTML;
 
         if (this.timerRunningValue) {
-            this.runTimer();
+            this.initTimer();
         }
     }
 
@@ -48,12 +48,18 @@ export default class extends Controller {
         this.timerStopButtonTarget.classList.toggle('hidden', true);
     }
 
-    runTimer() {
+    // Called when page is first loaded to start any timers that are already running.
+    initTimer() {
         let startedAt = DateTime.fromSeconds(this.timerStartTimeValue);
 
         // Negate the diff, otherwise we'll get a negative int.
         let diff = startedAt.diffNow(['seconds']).negate();
 
+        this.runTimer(diff);
+    }
+
+    // Called when starting a timer AFTER the initial page load
+    runTimer(diff) {
         // let totalTime = Duration.fromObject({seconds: this.timerAccumulatedTimeValue});
         let totalTime = diff.plus({seconds: this.timerAccumulatedTimeValue});
 
@@ -69,7 +75,9 @@ export default class extends Controller {
 
         this.restartTimer();
 
-        this.runTimer();
+        let diff = Duration.fromObject({seconds: 0})
+
+        this.runTimer(diff);
     }
 
     stopTimer() {
