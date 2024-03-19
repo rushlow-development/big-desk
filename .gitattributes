@@ -1,0 +1,14 @@
+*.md export-ignore
+.env.test export-ignore
+.php-cs-fixer.dist.php export-ignore
+.twigcs.dist.php export-ignore
+graphql.config.yml export-ignore
+phpstan.dist.neon export-ignore
+phpunit.xml.dist export-ignore
+psalm.xml export-ignore
+rector.php export-ignore
+
+.github export-ignore
+drivers export-ignore
+tests export-ignore
+tools export-ignore
