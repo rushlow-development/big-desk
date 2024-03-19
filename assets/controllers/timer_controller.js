@@ -7,29 +7,41 @@ import { DateTime } from 'luxon';
 export default class extends Controller {
     #intervalId;
 
-    static debounces = ['runTimer', 'stopTimer']
+    static debounces = ['runTimer', 'startTimer', 'stopTimer']
 
     static values = {
         timerId: String,
         timerRunning: Boolean,
         timerStartTime: Number,
+        timerAccumulatedTime: Number,
     }
 
     static targets = [
         'timerDurationCounter',
+        'timerStartButton',
         'timerStopButton',
     ]
 
     connect() {
         useDebounce(this);
 
+        this.setButtonVisibility();
+
         if (this.timerRunningValue) {
             this.runTimer();
+        }
+    }
+
+    setButtonVisibility() {
+        if (this.timerRunningValue) {
+            this.timerStartButtonTarget.classList.toggle('hidden', true);
+            this.timerStopButtonTarget.classList.toggle('hidden', false);
 
             return;
         }
 
-        this.timerStopButtonTarget.remove();
+        this.timerStartButtonTarget.classList.toggle('hidden', false);
+        this.timerStopButtonTarget.classList.toggle('hidden', true);
     }
 
     runTimer() {
@@ -42,16 +54,60 @@ export default class extends Controller {
         }, 1000);
     }
 
+    startTimer() {
+        this.timerStartButtonTarget.innerHTML = '~';
+
+        const startedAt = DateTime.fromSeconds(this.timerStartTimeValue);
+
+        this.#intervalId = setInterval(() => {
+            const duration = DateTime.now().diff(startedAt, ['hours', 'minutes', 'seconds']);
+
+            this.timerDurationCounterTarget.innerHTML = duration.toFormat('h:mm:ss');
+        }, 1000);
+
+        this.restartTimer();
+    }
+
     stopTimer() {
         this.timerStopButtonTarget.innerHTML = '~';
+
         clearInterval(this.#intervalId);
+
         this.timerRunningValue = false;
+
         this.persistTimer();
+    }
+
+    async restartTimer() {
+        let response = await axios
+            .post(`/timer/start/${this.timerIdValue}`)
+            .then((response) => {
+                return response.data.message;
+            })
+            .catch(function (error) {
+                console.log(error);
+
+                return false;
+            })
+        ;
+
+        if (response === false) {
+            // @todo do something
+            this.timerStartButtonTarget.innerHTML = 'Oops';
+
+            clearInterval(this.#intervalId);
+
+            return;
+        }
+
+        this.timerStartButtonTarget.classList.toggle('hidden', true);
+        this.timerStopButtonTarget.classList.toggle('hidden', false);
+        this.timerStartButtonTarget.innerHTML = 'Start';
     }
 
     async persistTimer() {
         let response = await axios
-            .post(`/timer/stop/${this.timerIdValue}`)
+            .post(`/timer/pause/${this.timerIdValue}`)
             .then((response) => {
                 return response.data.message;
             })
@@ -71,39 +127,8 @@ export default class extends Controller {
             return;
         }
 
-        this.timerStopButtonTarget.innerHTML = '';
-        this.timerStopButtonTarget.remove();
+        this.timerStartButtonTarget.classList.toggle('hidden', false);
+        this.timerStopButtonTarget.classList.toggle('hidden', true);
+        this.timerStopButtonTarget.innerHTML = 'Stop';
     }
-
-
-    // async startTimer() {
-    //     let response = await axios
-    //         .post('/timer/start')
-    //         .then((response) => {
-    //             if (response.status !== 200) {
-    //                 // @TODO Show an alert of something...
-    //
-    //                 return false;
-    //             }
-    //
-    //             return response.data;
-    //         })
-    //     ;
-    //
-    //     if (response === false) {
-    //         // @TODO Show an alert of something...
-    //
-    //         console.log('Ooops, something went wrong....');
-    //
-    //         return;
-    //     }
-    //
-    //     console.log(response.html.content);
-    //
-    //     const div = document.createElement('div');
-    //     div.classList.add('row');
-    //     div.innerHTML = response.html.content;
-    //
-    //     this.timerListTarget.prepend(div);
-    // }
 }

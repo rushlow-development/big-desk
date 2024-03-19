@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TimeEntryRepository;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterval;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -10,41 +12,60 @@ use Doctrine\ORM\Mapping as ORM;
 class TimeEntry extends AbstractEntity
 {
     public function __construct(
-        #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE)]
-        private \DateTimeImmutable $start,
+        #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+        private CarbonImmutable $startedAt,
 
-        #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, nullable: true)]
-        private ?\DateTimeImmutable $stopped = null,
+        #[ORM\Column(type: Types::DATEINTERVAL, nullable: true)]
+        private CarbonInterval $accumulatedTime = new CarbonInterval(),
+
+        #[ORM\Column]
+        private bool $running = true,
+
+        #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+        private ?CarbonImmutable $lastRestartedAt = null,
     ) {
         parent::__construct();
     }
 
-    public function getStart(): \DateTimeImmutable
+    public function getStartedAt(): CarbonImmutable
     {
-        return $this->start;
+        return $this->startedAt;
     }
 
-    public function setStart(\DateTimeImmutable $start): static
+    public function getAccumulatedTime(): CarbonInterval
     {
-        $this->start = $start;
+        return $this->accumulatedTime;
+    }
+
+    public function isRunning(): bool
+    {
+        return $this->running;
+    }
+
+    public function getLastRestartedAt(): ?CarbonImmutable
+    {
+        return $this->lastRestartedAt;
+    }
+
+    public function startTimer(): self
+    {
+        $this->running = true;
+
+        $this->lastRestartedAt = new CarbonImmutable();
 
         return $this;
     }
 
-    public function getStopped(): ?\DateTimeImmutable
+    public function stopTimer(): self
     {
-        return $this->stopped;
-    }
+        $started = $this->lastRestartedAt ?? $this->startedAt;
 
-    public function setStopped(?\DateTimeImmutable $stopped): static
-    {
-        $this->stopped = $stopped;
+        $diff = $started->diffAsCarbonInterval(absolute: true);
+
+        $this->accumulatedTime->addSeconds($diff->totalSeconds);
+
+        $this->running = false;
 
         return $this;
-    }
-
-    public function getDuration(): ?\DateInterval
-    {
-        return null !== $this->stopped ? $this->start->diff($this->stopped) : null;
     }
 }

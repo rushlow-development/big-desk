@@ -17,7 +17,7 @@ class MainController extends AbstractController
         return $this->render('main.html.twig', [
             'notes' => $notes->findAll(),
             'todos' => $listRepository->findAll(),
-            'timers' => $timeEntryRepository->findBy([], ['start' => 'DESC']),
+            'timers' => $timeEntryRepository->findBy([], ['startedAt' => 'DESC']),
         ]);
     }
 }
