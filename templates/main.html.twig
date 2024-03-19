@@ -7,7 +7,24 @@
         {.lead .text-secondary} {{ text }}
     {% endmacro %}
     <div class="row">
-        <div class="col me-1">
+        <div class="col-2 me-2" {{ stimulus_controller('timer_dashboard') }}>
+            <h1 class="mb-0">Timer
+                <button
+                    class="btn btn-sm text-success"
+                    {{ stimulus_action('timer_dashboard', 'startTimer') }}
+                >
+                    {{ include('svg/plus-circle.html.twig') }}
+                </button>
+            </h1>
+            <div {{ stimulus_target('timer_dashboard', 'timerList') }}>
+                {% for timer in timers %}
+                    <div class="row">
+                        {{ include('time_entry/_timer-card.html.twig', {'timer': timer}) }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col ms-2">
             <h1 class="mb-0">Notes
                 <a href="{{ path('app_note_new') }}" class="btn btn-sm text-success">
                     {{ include('svg/plus-circle.html.twig') }}

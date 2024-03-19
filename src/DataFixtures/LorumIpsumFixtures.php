@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Factory\NoteFactory;
 use App\Factory\TaskFactory;
+use App\Factory\TimeEntryFactory;
 use App\Factory\TodoListFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -19,5 +20,7 @@ class LorumIpsumFixtures extends Fixture
         foreach ($todoLists as $todoList) {
             TaskFactory::createMany(3, ['todoList' => $todoList]);
         }
+
+        TimeEntryFactory::createMany(3);
     }
 }
