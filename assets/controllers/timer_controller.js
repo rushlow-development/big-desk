@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import { useDebounce } from 'stimulus-use';
 import axios from 'axios';
-import { DateTime } from 'luxon';
+import { DateTime, Duration } from 'luxon';
 
 /* stimulusFetch: 'lazy */
 export default class extends Controller {
@@ -45,27 +45,27 @@ export default class extends Controller {
     }
 
     runTimer() {
-        const startedAt = DateTime.fromSeconds(this.timerStartTimeValue);
+        let startedAt = DateTime.fromSeconds(this.timerStartTimeValue);
+
+        // Negate the diff, otherwise we'll get a negative int.
+        let diff = startedAt.diffNow(['seconds']).negate();
+
+        // let totalTime = Duration.fromObject({seconds: this.timerAccumulatedTimeValue});
+        let totalTime = diff.plus({seconds: this.timerAccumulatedTimeValue});
 
         this.#intervalId = setInterval(() => {
-            const duration = DateTime.now().diff(startedAt, ['hours', 'minutes', 'seconds']);
+            totalTime = totalTime.plus({seconds: 1});
 
-            this.timerDurationCounterTarget.innerHTML = duration.toFormat('h:mm:ss');
+            this.timerDurationCounterTarget.innerHTML = totalTime.toFormat('h:mm:ss');
         }, 1000);
     }
 
     startTimer() {
         this.timerStartButtonTarget.innerHTML = '~';
 
-        const startedAt = DateTime.fromSeconds(this.timerStartTimeValue);
-
-        this.#intervalId = setInterval(() => {
-            const duration = DateTime.now().diff(startedAt, ['hours', 'minutes', 'seconds']);
-
-            this.timerDurationCounterTarget.innerHTML = duration.toFormat('h:mm:ss');
-        }, 1000);
-
         this.restartTimer();
+
+        this.runTimer();
     }
 
     stopTimer() {
@@ -82,7 +82,7 @@ export default class extends Controller {
         let response = await axios
             .post(`/timer/start/${this.timerIdValue}`)
             .then((response) => {
-                return response.data.message;
+                return response.data;
             })
             .catch(function (error) {
                 console.log(error);
@@ -100,6 +100,9 @@ export default class extends Controller {
             return;
         }
 
+        this.timerAccumulatedTimeValue = response.accumulatedSeconds;
+        this.timerStartTimeValue = response.restartedAt;
+
         this.timerStartButtonTarget.classList.toggle('hidden', true);
         this.timerStopButtonTarget.classList.toggle('hidden', false);
         this.timerStartButtonTarget.innerHTML = 'Start';
@@ -109,7 +112,7 @@ export default class extends Controller {
         let response = await axios
             .post(`/timer/pause/${this.timerIdValue}`)
             .then((response) => {
-                return response.data.message;
+                return response.data.accumulatedSeconds;
             })
             .catch(function (error) {
                 console.log(error);
@@ -126,6 +129,8 @@ export default class extends Controller {
 
             return;
         }
+
+        this.timerAccumulatedTimeValue = response;
 
         this.timerStartButtonTarget.classList.toggle('hidden', false);
         this.timerStopButtonTarget.classList.toggle('hidden', true);

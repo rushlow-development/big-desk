@@ -15,13 +15,13 @@ class TimeEntry extends AbstractEntity
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
         private CarbonImmutable $startedAt,
 
-        #[ORM\Column(type: Types::DATEINTERVAL, nullable: true)]
-        private CarbonInterval $accumulatedTime = new CarbonInterval(),
+        #[ORM\Column]
+        private int $accumulatedTime = 0,
 
         #[ORM\Column]
         private bool $running = true,
 
-        #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+        #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
         private ?CarbonImmutable $lastRestartedAt = null,
     ) {
         parent::__construct();
@@ -34,7 +34,7 @@ class TimeEntry extends AbstractEntity
 
     public function getAccumulatedTime(): CarbonInterval
     {
-        return $this->accumulatedTime;
+        return (new CarbonInterval())->addSeconds($this->accumulatedTime)->cascade();
     }
 
     public function isRunning(): bool
@@ -58,13 +58,15 @@ class TimeEntry extends AbstractEntity
 
     public function stopTimer(): self
     {
+        if (!$this->running) {
+            return $this;
+        }
+
         $started = $this->lastRestartedAt ?? $this->startedAt;
 
-        $diff = $started->diffAsCarbonInterval(absolute: true);
-        $this->accumulatedTime
-            ->addSeconds($diff->totalSeconds)
-            ->cascade()
-        ;
+        $interval = $started->diffAsCarbonInterval(absolute: true);
+
+        $this->accumulatedTime = $interval->cascade()->totalSeconds + $this->accumulatedTime;
 
         $this->running = false;
 

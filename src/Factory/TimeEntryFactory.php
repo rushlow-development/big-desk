@@ -4,6 +4,7 @@ namespace App\Factory;
 
 use App\Entity\TimeEntry;
 use App\Repository\TimeEntryRepository;
+use Carbon\CarbonImmutable;
 use Zenstruck\Foundry\ModelFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
@@ -48,7 +49,7 @@ final class TimeEntryFactory extends ModelFactory
     protected function getDefaults(): array
     {
         return [
-            'start' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
+            'startedAt' => CarbonImmutable::createFromInterface(self::faker()->dateTime()),
         ];
     }
 

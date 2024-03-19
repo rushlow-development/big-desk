@@ -7,7 +7,6 @@ use App\Repository\TimeEntryRepository;
 use Carbon\CarbonImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 
@@ -49,12 +48,13 @@ class TimerController extends AbstractController
 
         return $this->json([
             'message' => 'OK',
-            'accumulatedSeconds' => $timeEntry->getAccumulatedTime()->seconds,
+            'restartedAt' => $timeEntry->getLastRestartedAt()->timestamp,
+            'accumulatedSeconds' => $timeEntry->getAccumulatedTime()->totalSeconds,
         ]);
     }
 
     #[Route(path: '/pause/{id}', name: 'pause', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
-    public function pauseTimer(Request $request, TimeEntry $timeEntry, TimeEntryRepository $repository): JsonResponse
+    public function pauseTimer(TimeEntry $timeEntry, TimeEntryRepository $repository): JsonResponse
     {
         $timeEntry->stopTimer();
 
@@ -62,7 +62,7 @@ class TimerController extends AbstractController
 
         return $this->json([
             'message' => 'OK',
-            'accumulatedSeconds' => $timeEntry->getAccumulatedTime()->seconds,
+            'accumulatedSeconds' => $timeEntry->getAccumulatedTime()->totalSeconds,
         ]);
     }
 }
