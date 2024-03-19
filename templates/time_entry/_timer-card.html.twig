@@ -10,20 +10,8 @@
     <div class="card-body">
         <div class="card-text">
             <span {{ stimulus_target('timer', 'timerDurationCounter') }}>{{ timer.accumulatedTime|date('%h:%I:%S') }}</span>
-                <button
-                    class="btn btn-sm btn-outline-warning mt-2 me-2 position-absolute top-0 end-0"
-                    {{ stimulus_target('timer', 'timerStopButton') }}
-                    {{ stimulus_action('timer', 'stopTimer') }}
-                >
-                    {{ include('svg/stop.html.twig') }}
-                </button>
-                <button
-                    class="btn btn-sm btn-outline-success mt-2 me-2 position-absolute top-0 end-0"
-                    {{ stimulus_target('timer', 'timerStartButton') }}
-                    {{ stimulus_action('timer', 'startTimer') }}
-                >
-                    {{ include('svg/play.html.twig') }}
-                </button>
+            <twig:Button:Timer:Action svg="stop" target="timerStopButton" action="stopTimer" color="warning" />
+            <twig:Button:Timer:Action svg="play" target="timerStartButton" action="startTimer" color="success" />
         </div>
         <div class="card-text">
             <small class="text-secondary">{{ timer.startedAt|date("H:i", "America/New_York") }}</small>

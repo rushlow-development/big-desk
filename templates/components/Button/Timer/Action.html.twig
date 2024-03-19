@@ -1,0 +1,8 @@
+{% props svg, target, action, color %}
+<button
+    {{ attributes.defaults({ class: 'btn btn-sm btn-outline-'~color~' mt-2 me-2 position-absolute top-0 end-0' }) }}
+    {{ stimulus_target('timer', target) }}
+    {{ stimulus_action('timer', action) }}
+>
+    {{ include('svg/'~svg~'.html.twig') }}
+</button>
