@@ -11,14 +11,14 @@
         <div class="card-text">
             <span {{ stimulus_target('timer', 'timerDurationCounter') }}>{{ timer.accumulatedTime|date('%h h %I min') }}</span>
                 <button
-                    class="btn btn-sm btn-outline-warning mt-2 me-2"
+                    class="btn btn-sm btn-outline-warning mt-2 me-2 position-absolute top-0 end-0"
                     {{ stimulus_target('timer', 'timerStopButton') }}
                     {{ stimulus_action('timer', 'stopTimer') }}
                 >
                     Stop
                 </button>
                 <button
-                    class="btn btn-sm btn-outline-success mt-2 me-2"
+                    class="btn btn-sm btn-outline-success mt-2 me-2 position-absolute top-0 end-0"
                     {{ stimulus_target('timer', 'timerStartButton') }}
                     {{ stimulus_action('timer', 'startTimer') }}
                 >
