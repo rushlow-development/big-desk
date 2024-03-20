@@ -12,8 +12,6 @@ export default class extends Controller {
     }
 
     connect() {
-        let btn = document.querySelector('#add-task');
-
         for (let i   = 0; i < this.taskListTarget.children.length; i++) {
             this.addRemoveButton(this.taskListTarget.children[i]);
         }
