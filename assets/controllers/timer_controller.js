@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { getComponent } from '@symfony/ux-live-component';
 import { useDebounce } from 'stimulus-use';
 import axios from 'axios';
 import { DateTime, Duration } from 'luxon';
@@ -23,6 +24,10 @@ export default class extends Controller {
         'timerStartButton',
         'timerStopButton',
     ]
+
+    async initialize() {
+        this.component = await getComponent(this.element);
+    }
 
     connect() {
         useDebounce(this);

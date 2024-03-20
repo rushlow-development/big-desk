@@ -1,0 +1,32 @@
+<div
+    class="col card bg-dark-subtle rounded mb-3 mt-2 position-relative"
+    {{ attributes.defaults(stimulus_controller('timer', {
+        'timerId': timer.id,
+        'timerRunning': timer.running,
+        'timerStartTime': timer.lastRestartedAt.timestamp ?? timer.startedAt.timestamp,
+        'timerAccumulatedTime': timer.accumulatedTime.totalSeconds
+    })) }}
+{#    {% if timer.running %}data-poll{% endif %}#}
+>
+    {% if isEditing %}
+        <p>I'm being edited...</p>
+    {% else %}
+        <div class="card-body">
+            <div class="card-text">
+                <span {{ stimulus_target('timer', 'timerDurationCounter') }}>{{ this.timer.accumulatedTime|date('%h:%I:%S') }}</span>
+                <twig:Button:Timer:Action svg="stop" target="timerStopButton" action="stopTimer" color="warning" />
+                <twig:Button:Timer:Action svg="play" target="timerStartButton" action="startTimer" color="success"/>
+            </div>
+            <div class="card-text">
+                <small class="text-secondary">{{ this.timer.startedAt|date("H:i", "America/New_York") }}</small>
+            </div>
+            <div class="card-text">
+                <small class="text-secondary">{{ this.timer.startedAt|date("M jS Y") }}</small>
+            </div>
+            {#        <div>#}
+            {#            {{ timer.name }}#}
+            {#            <twig:Button:Edit-Link path="app_timer_edit" id="{{ timer.id }}" {{ class: {top-0:"false"} }} />#}
+            {#        </div>#}
+        </div>
+    {% endif %}
+</div>
