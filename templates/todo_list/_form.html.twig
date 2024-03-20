@@ -6,9 +6,7 @@
         {{ form_row(form.name) }}
 
         <p class="lead">Tasks:
-            <button type="button" id="add-task" class="btn text-success"
-                {{ stimulus_action('task', 'addTaskForm') }}
-            >{{ include('svg/plus-circle.html.twig') }}</button>
+                <twig:Button:Add controller="task" action="addTaskForm" id="add-task" />
         </p>
 
         <div class="items"
