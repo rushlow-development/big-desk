@@ -1,0 +1,8 @@
+{% props controller, action %}
+<button
+    type="button"
+    {{ attributes.defaults({class: 'btn btn-sm text-success'}) }}
+    {{ stimulus_action(controller, action) }}
+>
+    {{ include('svg/plus-circle.html.twig') }}
+</button>

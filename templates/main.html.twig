@@ -9,12 +9,7 @@
     <div class="row">
         <div class="col-2 me-2" {{ stimulus_controller('timer_dashboard') }}>
             <h1 class="mb-0">Timer
-                <button
-                    class="btn btn-sm text-success"
-                    {{ stimulus_action('timer_dashboard', 'startTimer') }}
-                >
-                    {{ include('svg/plus-circle.html.twig') }}
-                </button>
+                <twig:Button:Add controller="timer_dashboard" action="startTimer" />
             </h1>
             <div {{ stimulus_target('timer_dashboard', 'timerList') }}>
                 {% for timer in timers %}
@@ -26,17 +21,15 @@
         </div>
         <div class="col ms-2">
             <h1 class="mb-0">Notes
-                <a href="{{ path('app_note_new') }}" class="btn btn-sm text-success">
-                    {{ include('svg/plus-circle.html.twig') }}
-                </a>
+                <twig:Button:Add-Link path="app_note_new" />
             </h1>
             {% for note in notes %}
                 <div class="row">
                     <div class="col bg-dark-subtle rounded mb-3 mt-2 p-4 position-relative">
-                        <a href="{{ path('app_note_edit', {'id': note.id}) }}" class="btn btn-sm text-success position-absolute top-0 end-0">
-                            {{ include('svg/pencil.html.twig') }}
-                        </a>
+                        <twig:Button:Edit-Link path="app_note_edit" id="{{ note.id }}" />
+
                             {{ _self.add_attributes(note.title)|markdown_to_html }}
+
                         <div>
                             {{ (note.content ?? '')|markdown_to_html }}
                         </div>
@@ -46,17 +39,14 @@
         </div>
         <div class="col-4 ms-1">
             <h1 class="mb-2">Tasks
-                <a href="{{ path('app_todo_list_new') }}" class="btn btn-sm text-success">
-                    {{ include('svg/plus-circle.html.twig') }}
-                </a>
+                <twig:Button:Add-Link path="app_todo_list_new" />
             </h1>
             {% for todo in todos %}
                 <div class="bg-dark-subtle rounded my-2 mb-4 p-4 position-relative">
-                    <a href="{{ path('app_todo_list_edit', {'id': todo.id}) }}" class="btn btn-sm text-success position-absolute top-0 end-0">
-                        {{ include('svg/pencil.html.twig') }}
-                    </a>
+                    <twig:Button:Edit-Link path="app_todo_list_edit" id="{{ todo.id }}" />
 
                     {{ _self.add_attributes(todo.name)|markdown_to_html }}
+
                     <ul class="list-group list-group-flush" {{ stimulus_controller('task_dashboard', {'todoListId': todo.id}) }}>
                         {% for task in todo.tasks %}
                             <li class="task-item list-group-item d-flex justify-content-between align-items-center bg-dark-subtle">
