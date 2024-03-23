@@ -72,4 +72,29 @@ class TimeEntry extends AbstractEntity
 
         return $this;
     }
+
+    public function getTotalSeconds(): int
+    {
+        if (!$this->running) {
+            return $this->accumulatedTime;
+        }
+
+        $started = $this->lastRestartedAt ?? $this->startedAt;
+
+        $interval = $started->diffAsCarbonInterval(absolute: true);
+
+        return (int) $interval->cascade()->totalSeconds + $this->accumulatedTime;
+    }
+
+//    public function setName(string $name): self
+//    {
+//        $this->name = $name;
+//
+//        return $this;
+//    }
+//
+//    public function getName(): string
+//    {
+//        return $this->name;
+//    }
 }

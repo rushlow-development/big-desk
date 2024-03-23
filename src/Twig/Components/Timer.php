@@ -34,17 +34,25 @@ final class Timer
 //        $this->isEditing = false;
 //    }
 
-//    #[LiveAction]
-//    public function startTimer(TimeEntryRepository $repository): void
-//    {
-//        $this->timer->startTimer();
-//
-//        $repository->flush();
-//
-//        return $this->json([
-//            'message' => 'OK',
-//            'restartedAt' => $timeEntry->getLastRestartedAt()->timestamp ?? false,
-//            'accumulatedSeconds' => $timeEntry->getAccumulatedTime()->totalSeconds,
-//        ]);
-//    }
+    #[LiveAction]
+    public function startTimer(TimeEntryRepository $repository): void
+    {
+        $this->timer->startTimer();
+
+        $repository->flush();
+
+        $this->dispatchBrowserEvent('timer:start:'.$this->timer->getId(), [
+            'totalSeconds' => $this->timer->getTotalSeconds(),
+        ]);
+    }
+
+    #[LiveAction]
+    public function stopTimer(TimeEntryRepository $repository): void
+    {
+        $this->timer->stopTimer();
+
+        $repository->flush();
+
+        $this->dispatchBrowserEvent('timer:stop:'.$this->timer->getId());
+    }
 }
