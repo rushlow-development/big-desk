@@ -65,4 +65,14 @@ class TimerController extends AbstractController
             'accumulatedSeconds' => $timeEntry->getAccumulatedTime()->totalSeconds,
         ]);
     }
+
+    #[Route(path: '/remove/{id}', name: 'remove', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    public function remove(TimeEntry $timeEntry): JsonResponse
+    {
+        $this->repository->remove($timeEntry, flush: true);
+
+        return $this->json([
+            'message' => 'OK',
+        ]);
+    }
 }

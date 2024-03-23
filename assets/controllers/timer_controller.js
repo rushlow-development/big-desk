@@ -2,13 +2,14 @@ import { Controller } from '@hotwired/stimulus';
 import { getComponent } from '@symfony/ux-live-component';
 import { useDebounce } from 'stimulus-use';
 import axios from 'axios';
-import { DateTime, Duration } from 'luxon';
+import { Duration } from 'luxon';
+import Swal from 'sweetalert2';
 
 /* stimulusFetch: 'lazy */
 export default class extends Controller {
     #intervalId;
 
-    static debounces = ['runTimer', 'startTimer', 'stopTimer']
+    static debounces = ['runTimer', 'startTimer', 'stopTimer', 'removeTimer']
 
     static values = {
         timerId: String,
@@ -57,5 +58,32 @@ export default class extends Controller {
 
             this.timerDurationCounterTarget.innerHTML = totalSecondsDuration.toFormat('h:mm:ss');
         }, 1000);
+    }
+
+    async removeTimer() {
+        await Swal
+            .fire({
+                title: 'Are you sure?',
+                text: 'Do you really want to delete this timer?',
+                icon: 'error',
+                showConfirmButton: true,
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Permanently Delete Timer',
+            })
+            .then(async (result) => {
+                if (true !== result.isConfirmed) {
+                    return;
+                }
+
+                await axios
+                    .post(`/timer/remove/${this.timerIdValue}`)
+                    .catch((error) => {
+                        console.log(error);
+                    })
+                ;
+
+                window.location.reload();
+            })
+        ;
     }
 }

@@ -13,9 +13,10 @@
             <div class="card-text">
                 <span {{ stimulus_target('timer', 'timerDurationCounter') }}>{{ this.timer.accumulatedTime|date('%h:%I:%S') }}</span>
                 {% if timer.running %}
-                    <twig:Button:Timer:Action svg="stop" color="warning" data-action="live#action" data-live-action-param="stopTimer"/>
+                    <twig:Button:Timer:Action svg="stop" color="warning" data-action="live#action" data-live-action-param="stopTimer" />
                 {% else %}
                     <twig:Button:Timer:Action svg="play" color="success" data-action="live#action" data-live-action-param="startTimer" />
+                    <twig:Button:Timer:Action svg="x-circle" color="danger" x="bottom" data-action="timer#removeTimer" />
                 {% endif %}
             </div>
             <div class="card-text">

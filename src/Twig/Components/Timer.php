@@ -7,12 +7,14 @@ use App\Repository\TimeEntryRepository;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
+use Symfony\UX\LiveComponent\ComponentToolsTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
 #[AsLiveComponent]
 final class Timer
 {
     use DefaultActionTrait;
+    use ComponentToolsTrait;
 
     #[LiveProp(writable: ['name'])]
     public TimeEntry $timer;
