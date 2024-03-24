@@ -17,7 +17,6 @@ framework:
                     Content-Type: 'application/json'
                     Accept: 'application/vnd.github+json'
                     User-Agent: 'rushlow-development/big-desk'
-                    Authorization: 'bearer %env(GITHUB_API_TOKEN)%'
 
 when@test:
     framework:
