@@ -32,6 +32,8 @@ security:
                 samesite: strict
                 token_provider:
                     doctrine: true
+            login_throttling:
+                max_attempts: 3
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
