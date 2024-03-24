@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block body %}
+<div class="col">
+    <h1>{{ app.user.displayName }}'s Profile</h1>
+
+    <div class="mb-3">
+        {% if app.user.gitHubToken is null %}
+            GitHub Token: <span class="text-danger">{{ include('svg/x-circle.html.twig') }}</span>
+        {% else %}
+            GitHub Token: <span class="text-success">{{ include('svg/check-mark.html.twig') }}</span>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

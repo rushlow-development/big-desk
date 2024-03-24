@@ -2,12 +2,16 @@
 
 namespace App\Tests\Functional\Service;
 
+use App\Factory\UserFactory;
+use App\Model\EncryptedData;
 use App\Model\GitHubIssue;
 use App\Model\GitHubPullRequest;
 use App\Model\GitHubUrlData;
+use App\Service\EncryptorService;
 use App\Service\TaskService;
 use App\Tests\FunctionalTestCase;
 use App\Util\TypeEnum;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -36,7 +40,6 @@ final class TaskServiceTest extends FunctionalTestCase
             'Content-Type' => 'application/json',
             'Accept' => 'application/vnd.github+json',
             'User-Agent' => 'rushlow-development/big-desk',
-            'Authorization' => 'bearer $uperSecretToken',
         ];
 
         self::assertArrayIsEqualToArrayOnlyConsideringListOfKeys(
@@ -47,6 +50,10 @@ final class TaskServiceTest extends FunctionalTestCase
 
     public function testGetGitHubDataFromUrlWithPullRequest(): void
     {
+        $user = UserFactory::createOne();
+        $user->disableAutoRefresh();
+        $user->setGitHubToken($data = new EncryptedData('', ''));
+
         $urlDataFixture = new GitHubUrlData(
             owner: 'rushlow',
             repository: 'big-desk',
@@ -65,8 +72,21 @@ final class TaskServiceTest extends FunctionalTestCase
 
         $mockResponse = new MockResponse((string) file_get_contents(__DIR__.'/GraphQLResponseFixture/pull-request.200.json'));
         $mockHttpClient = new MockHttpClient($mockResponse);
+        $mockSecurity = $this->createMock(Security::class);
+        $mockSecurity
+            ->expects(self::once())
+            ->method('getUser')
+            ->willReturn($user->object())
+        ;
+        $mockEncryptor = $this->createMock(EncryptorService::class);
+        $mockEncryptor
+            ->expects(self::once())
+            ->method('decryptData')
+            ->with($data)
+            ->willReturn('$superSecretToken')
+        ;
 
-        $service = new TaskService($mockHttpClient);
+        $service = new TaskService($mockHttpClient, $mockSecurity, $mockEncryptor);
         $result = $service->getGitHubDataFromUrl($urlDataFixture);
 
         self::assertEquals($expected, $result);
@@ -80,10 +100,17 @@ final class TaskServiceTest extends FunctionalTestCase
         self::assertStringContainsString('\u0022repository_owner\u0022:\u0022rushlow\u0022', $requestBody);
         self::assertStringContainsString('\u0022repository_name\u0022:\u0022big-desk\u0022', $requestBody);
         self::assertStringContainsString('\u0022number\u0022:100', $requestBody);
+
+        $calledWithOptions = $mockResponse->getRequestOptions();
+        self::assertSame('Authorization: bearer $superSecretToken', $calledWithOptions['normalized_headers']['authorization'][0]);
     }
 
     public function testGetGitHubDataFromUrlWithIssue(): void
     {
+        $user = UserFactory::createOne();
+        $user->disableAutoRefresh();
+        $user->setGitHubToken($data = new EncryptedData('', ''));
+
         $urlDataFixture = new GitHubUrlData(
             owner: 'rushlow',
             repository: 'big-desk',
@@ -102,8 +129,21 @@ final class TaskServiceTest extends FunctionalTestCase
 
         $mockResponse = new MockResponse((string) file_get_contents(__DIR__.'/GraphQLResponseFixture/issue.200.json'));
         $mockHttpClient = new MockHttpClient($mockResponse);
+        $mockSecurity = $this->createMock(Security::class);
+        $mockSecurity
+            ->expects(self::once())
+            ->method('getUser')
+            ->willReturn($user->object())
+        ;
+        $mockEncryptor = $this->createMock(EncryptorService::class);
+        $mockEncryptor
+            ->expects(self::once())
+            ->method('decryptData')
+            ->with($data)
+            ->willReturn('$superSecretToken')
+        ;
 
-        $service = new TaskService($mockHttpClient);
+        $service = new TaskService($mockHttpClient, $mockSecurity, $mockEncryptor);
         $result = $service->getGitHubDataFromUrl($urlDataFixture);
 
         self::assertEquals($expected, $result);
@@ -117,5 +157,8 @@ final class TaskServiceTest extends FunctionalTestCase
         self::assertStringContainsString('\u0022repository_owner\u0022:\u0022rushlow\u0022', $requestBody);
         self::assertStringContainsString('\u0022repository_name\u0022:\u0022big-desk\u0022', $requestBody);
         self::assertStringContainsString('\u0022number\u0022:100', $requestBody);
+
+        $calledWithOptions = $mockResponse->getRequestOptions();
+        self::assertSame('Authorization: bearer $superSecretToken', $calledWithOptions['normalized_headers']['authorization'][0]);
     }
 }

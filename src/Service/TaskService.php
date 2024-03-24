@@ -2,11 +2,13 @@
 
 namespace App\Service;
 
+use App\Entity\User;
 use App\Exception\HttpClientException;
 use App\Model\GitHubIssue;
 use App\Model\GitHubPullRequest;
 use App\Model\GitHubUrlData;
 use App\Util\TypeEnum;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -24,6 +26,8 @@ final readonly class TaskService
 {
     public function __construct(
         private HttpClientInterface $gitHubHttpClient,
+        private Security $security,
+        private EncryptorService $encryptor,
     ) {
     }
 
@@ -107,7 +111,24 @@ final readonly class TaskService
      */
     private function makeRequest(string $payload, array $payloadVariables): ?array
     {
-        $options = [];
+        /** @var User|null $user */
+        $user = $this->security->getUser();
+
+        if (null === $user || null === $user->getGitHubToken()) {
+            return null;
+        }
+
+        $token = $this->encryptor->decryptData($user->getGitHubToken());
+
+        if (null === $token) {
+            return null;
+        }
+
+        $options = [
+            'headers' => [
+                'Authorization' => 'bearer '.$token,
+            ],
+        ];
 
         try {
             $options['json'] = ['query' => $payload, 'variables' => json_encode($payloadVariables, \JSON_THROW_ON_ERROR)];
