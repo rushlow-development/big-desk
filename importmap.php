@@ -44,4 +44,10 @@ return [
     'stimulus-use' => [
         'version' => '0.52.2',
     ],
+    '@symfony/ux-live-component' => [
+        'path' => './vendor/symfony/ux-live-component/assets/dist/live_controller.js',
+    ],
+    'sweetalert2' => [
+        'version' => '11.10.7',
+    ],
 ];

@@ -1,151 +1,89 @@
 import { Controller } from '@hotwired/stimulus';
+import { getComponent } from '@symfony/ux-live-component';
 import { useDebounce } from 'stimulus-use';
 import axios from 'axios';
-import { DateTime, Duration } from 'luxon';
+import { Duration } from 'luxon';
+import Swal from 'sweetalert2';
 
 /* stimulusFetch: 'lazy */
 export default class extends Controller {
     #intervalId;
-    #startIcon;
-    #stopIcon;
 
-    static debounces = ['runTimer', 'startTimer', 'stopTimer']
+    static debounces = ['runTimer', 'startTimer', 'stopTimer', 'removeTimer']
 
     static values = {
         timerId: String,
         timerRunning: Boolean,
-        timerStartTime: Number,
-        timerAccumulatedTime: Number,
+        timerTotalSeconds: Number,
     }
 
     static targets = [
         'timerDurationCounter',
-        'timerStartButton',
-        'timerStopButton',
     ]
+
+    async initialize() {
+        this.component = await getComponent(this.element);
+    }
 
     connect() {
         useDebounce(this);
 
-        this.setButtonVisibility();
-        this.#startIcon = this.timerStartButtonTarget.innerHTML;
-        this.#stopIcon = this.timerStopButtonTarget.innerHTML;
-
         if (this.timerRunningValue) {
             this.initTimer();
         }
-    }
 
-    setButtonVisibility() {
-        if (this.timerRunningValue) {
-            this.timerStartButtonTarget.classList.toggle('hidden', true);
-            this.timerStopButtonTarget.classList.toggle('hidden', false);
+        window.addEventListener(`timer:start:${this.timerIdValue}`, (event) => {
+            let totalSecondsDuration = Duration.fromObject({seconds: event.detail.totalSeconds});
 
-            return;
-        }
+            this.#intervalId = this.attachInterval(totalSecondsDuration);
+        });
 
-        this.timerStartButtonTarget.classList.toggle('hidden', false);
-        this.timerStopButtonTarget.classList.toggle('hidden', true);
+        window.addEventListener(`timer:stop:${this.timerIdValue}`, () => {
+            clearInterval(this.#intervalId);
+
+            this.timerRunningValue = false;
+        });
     }
 
     // Called when page is first loaded to start any timers that are already running.
     initTimer() {
-        let startedAt = DateTime.fromSeconds(this.timerStartTimeValue);
+        let totalSecondsDuration = Duration.fromObject({seconds: this.timerTotalSecondsValue});
 
-        // Negate the diff, otherwise we'll get a negative int.
-        let diff = startedAt.diffNow(['seconds']).negate();
-
-        this.runTimer(diff);
+        this.#intervalId = this.attachInterval(totalSecondsDuration);
     }
 
-    // Called when starting a timer AFTER the initial page load
-    runTimer(diff) {
-        // let totalTime = Duration.fromObject({seconds: this.timerAccumulatedTimeValue});
-        let totalTime = diff.plus({seconds: this.timerAccumulatedTimeValue});
+    attachInterval(totalSecondsDuration) {
+        return setInterval(() => {
+            totalSecondsDuration = totalSecondsDuration.plus({seconds: 1});
 
-        this.#intervalId = setInterval(() => {
-            totalTime = totalTime.plus({seconds: 1});
-
-            this.timerDurationCounterTarget.innerHTML = totalTime.toFormat('h:mm:ss');
+            this.timerDurationCounterTarget.innerHTML = totalSecondsDuration.toFormat('h:mm:ss');
         }, 1000);
     }
 
-    startTimer() {
-        this.timerStartButtonTarget.innerHTML = '~';
-
-        this.restartTimer();
-
-        let diff = Duration.fromObject({seconds: 0})
-
-        this.runTimer(diff);
-    }
-
-    stopTimer() {
-        this.timerStopButtonTarget.innerHTML = '~';
-
-        clearInterval(this.#intervalId);
-
-        this.timerRunningValue = false;
-
-        this.persistTimer();
-    }
-
-    async restartTimer() {
-        let response = await axios
-            .post(`/timer/start/${this.timerIdValue}`)
-            .then((response) => {
-                return response.data;
+    async removeTimer() {
+        await Swal
+            .fire({
+                title: 'Are you sure?',
+                text: 'Do you really want to delete this timer?',
+                icon: 'error',
+                showConfirmButton: true,
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Permanently Delete Timer',
             })
-            .catch(function (error) {
-                console.log(error);
+            .then(async (result) => {
+                if (true !== result.isConfirmed) {
+                    return;
+                }
 
-                return false;
+                await axios
+                    .post(`/timer/remove/${this.timerIdValue}`)
+                    .catch((error) => {
+                        console.log(error);
+                    })
+                ;
+
+                window.location.reload();
             })
         ;
-
-        if (response === false) {
-            // @todo do something
-            this.timerStartButtonTarget.innerHTML = 'Oops';
-
-            clearInterval(this.#intervalId);
-
-            return;
-        }
-
-        this.timerAccumulatedTimeValue = response.accumulatedSeconds;
-        this.timerStartTimeValue = response.restartedAt;
-
-        this.timerStartButtonTarget.classList.toggle('hidden', true);
-        this.timerStopButtonTarget.classList.toggle('hidden', false);
-        this.timerStartButtonTarget.innerHTML = this.#startIcon;
-    }
-
-    async persistTimer() {
-        let response = await axios
-            .post(`/timer/pause/${this.timerIdValue}`)
-            .then((response) => {
-                return response.data.accumulatedSeconds;
-            })
-            .catch(function (error) {
-                console.log(error);
-
-                return false;
-            })
-        ;
-
-        if (response === false) {
-            // @todo do something
-            this.timerStopButtonTarget.innerHTML = 'Oops';
-
-            this.runTimer();
-
-            return;
-        }
-
-        this.timerAccumulatedTimeValue = response;
-
-        this.timerStartButtonTarget.classList.toggle('hidden', false);
-        this.timerStopButtonTarget.classList.toggle('hidden', true);
-        this.timerStopButtonTarget.innerHTML = this.#stopIcon;
     }
 }

@@ -14,7 +14,7 @@
             <div {{ stimulus_target('timer_dashboard', 'timerList') }}>
                 {% for timer in timers %}
                     <div class="row">
-                        {{ include('time_entry/_timer-card.html.twig', {'timer': timer}) }}
+                        <twig:Timer timer="{{ timer }}" />
                     </div>
                 {% endfor %}
             </div>
