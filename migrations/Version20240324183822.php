@@ -10,11 +10,11 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240324124737 extends AbstractMigration
+final class Version20240324183822 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Add user';
+        return 'Add User and authentication';
     }
 
     public function up(Schema $schema): void
@@ -24,11 +24,11 @@ final class Version20240324124737 extends AbstractMigration
           username VARCHAR(180) NOT NULL,
           PASSWORD VARCHAR(255) NOT NULL,
           roles JSON NOT NULL,
-          id UUID NOT NULL,
           git_hub_token JSON DEFAULT NULL,
+          id UUID NOT NULL,
           PRIMARY KEY(id)
         )');
-        $this->addSql('CREATE UNIQUE INDEX UNIQ_IDENTIFIER_EMAIL ON "user" (username)');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_IDENTIFIER_EMAIL ON "user" (username, display_name)');
         $this->addSql('CREATE TABLE rememberme_token (
           series VARCHAR(88) NOT NULL,
           value VARCHAR(88) NOT NULL,

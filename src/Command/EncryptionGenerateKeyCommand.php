@@ -14,6 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class EncryptionGenerateKeyCommand extends Command
 {
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         (new SymfonyStyle($input, $output))
