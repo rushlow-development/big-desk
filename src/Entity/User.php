@@ -9,16 +9,18 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['username'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['username', 'displayName'])]
 class User extends AbstractEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
     public function __construct(
         #[ORM\Column(length: 180)]
         private string $displayName,
 
+        #[\SensitiveParameter]
         #[ORM\Column(length: 180)]
         private string $username,
 
+        #[\SensitiveParameter]
         #[ORM\Column]
         private string $password,
 

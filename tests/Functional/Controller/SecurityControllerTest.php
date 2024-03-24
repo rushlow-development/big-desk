@@ -14,13 +14,13 @@ class SecurityControllerTest extends FunctionalTestCase
 
         $client->request('GET', '/login');
 
-        $crawler = $client->submitForm('Sign in', [
+        $client->submitForm('Sign in', [
             '_username' => 'Some User',
             '_password' => 'My Password',
         ]);
 
         self::assertSelectorCount(1, '.alert');
-        self::assertSame('Invalid credentials.', $crawler->filter('.alert-danger')->first()->text());
+        self::assertSelectorTextSame('.alert-danger', 'Invalid credentials.');
 
         $user = UserFactory::createOne();
 
