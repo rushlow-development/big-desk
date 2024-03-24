@@ -1,17 +1,17 @@
-{% props svg, color, x = 'top', y = 'end' %}
+{% props svg, color, position = 'default' %}
 
-{% set position = cva({
-    base: 'position-absolute',
+{% set position_class = cva({
     variants: {
-        x: {
-            top: 'mt-2 me-2 top-0 end-0',
-            bottom: 'mb-2 me-2 bottom-0 end-0'
+        position: {
+            top: 'position-absolute mt-2 me-2 top-0 end-0',
+            bottom: 'position-absolute mb-2 me-2 bottom-0 end-0',
+            default: ''
         }
     }
-})%}
+}) %}
 
 <button
-    {{ attributes.defaults({class: 'btn btn-sm text-' ~ color ~ ' ' ~ position.apply({x})}) }}
+    {{ attributes.defaults({class: 'btn btn-sm text-' ~ color ~ ' ' ~ position_class.apply({position})}) }}
 >
     {{ include('svg/' ~ svg ~ '.html.twig') }}
 </button>

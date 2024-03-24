@@ -6,29 +6,38 @@
         'timerTotalSeconds': timer.getTotalSeconds,
     })) }}
 >
-    {% if isEditing %}
-        <p>I'm being edited...</p>
-    {% else %}
-        <div class="card-body">
-            <div class="card-text">
-                <span {{ stimulus_target('timer', 'timerDurationCounter') }}>{{ this.timer.accumulatedTime|date('%h:%I:%S') }}</span>
-                {% if timer.running %}
-                    <twig:Button:Timer:Action svg="stop" color="warning" data-action="live#action" data-live-action-param="stopTimer" />
-                {% else %}
-                    <twig:Button:Timer:Action svg="play" color="success" data-action="live#action" data-live-action-param="startTimer" />
-                    <twig:Button:Timer:Action svg="x-circle" color="danger" x="bottom" data-action="timer#removeTimer" />
-                {% endif %}
-            </div>
-            <div class="card-text">
-                <small class="text-secondary">{{ this.timer.startedAt|date("H:i", "America/New_York") }}</small>
-            </div>
-            <div class="card-text">
-                <small class="text-secondary">{{ this.timer.startedAt|date("M jS Y") }}</small>
-            </div>
-            {#        <div>#}
-            {#            {{ timer.name }}#}
-            {#            <twig:Button:Edit-Link path="app_timer_edit" id="{{ timer.id }}" {{ class: {top-0:"false"} }} />#}
-            {#        </div>#}
+    <div class="card-body">
+        <div class="card-text">
+            <span {{ stimulus_target('timer', 'timerDurationCounter') }}>{{ this.timer.accumulatedTime|date('%h:%I:%S') }}</span>
+            {% if timer.running %}
+                <twig:Button:Timer:Action svg="stop" color="warning" position="top" data-action="live#action" data-live-action-param="stopTimer" />
+            {% else %}
+                <twig:Button:Timer:Action svg="play" color="success" position="top" data-action="live#action" data-live-action-param="startTimer" />
+                <twig:Button:Timer:Action svg="x-circle" color="danger" position="bottom" data-action="timer#removeTimer" />
+            {% endif %}
         </div>
-    {% endif %}
+        <div class="card-text">
+            <small class="text-secondary">{{ this.timer.startedAt|date("H:i", "America/New_York") }}</small>
+        </div>
+        <div class="card-text">
+            <small class="text-secondary">{{ this.timer.startedAt|date("M jS Y") }}</small>
+        </div>
+        <div class="card-text">
+            {% if isEditing %}
+                <div>
+                    <input data-model="norender|timer.name" class="form-control" type="text" placeholder="Name Timer...">
+                </div>
+                <div>
+                    <twig:Button:Timer:Action svg="save" color="success" data-action="live#action" data-live-action-param="saveName" />
+                </div>
+            {% else %}
+                <div>
+                    {{ timer.name }}
+                </div>
+                <div>
+                    <twig:Button:Timer:Action svg="pencil" color="warning" data-action="live#action" data-live-action-param="editMode"/>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>

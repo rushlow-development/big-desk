@@ -23,6 +23,9 @@ class TimeEntry extends AbstractEntity
 
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
         private ?CarbonImmutable $lastRestartedAt = null,
+
+        #[ORM\Column]
+        private string $name = '',
     ) {
         parent::__construct();
     }
@@ -86,15 +89,15 @@ class TimeEntry extends AbstractEntity
         return (int) $interval->cascade()->totalSeconds + $this->accumulatedTime;
     }
 
-//    public function setName(string $name): self
-//    {
-//        $this->name = $name;
-//
-//        return $this;
-//    }
-//
-//    public function getName(): string
-//    {
-//        return $this->name;
-//    }
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
 }
