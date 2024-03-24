@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Doctrine\Type\EncryptedDataType;
+use App\Model\EncryptedData;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -27,6 +29,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         /** @var list<string> The user roles */
         #[ORM\Column]
         private array $roles = [],
+
+        #[ORM\Column(type: EncryptedDataType::ENCRYPTED_DATA_TYPE, nullable: true)]
+        private ?EncryptedData $gitHubToken = null,
     ) {
         parent::__construct();
     }
@@ -48,12 +53,14 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this;
     }
 
+    #[\Override]
     public function getUserIdentifier(): string
     {
         return $this->username;
     }
 
     /** @return list<string> */
+    #[\Override]
     public function getRoles(): array
     {
         $roles = $this->roles;
@@ -71,6 +78,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this;
     }
 
+    #[\Override]
     public function getPassword(): string
     {
         return $this->password;
@@ -83,9 +91,22 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this;
     }
 
+    #[\Override]
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getGitHubToken(): ?EncryptedData
+    {
+        return $this->gitHubToken;
+    }
+
+    public function setGitHubToken(?EncryptedData $token): self
+    {
+        $this->gitHubToken = $token;
+
+        return $this;
     }
 }

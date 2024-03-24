@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Update GitHub Token{% endblock %}
+
+{% block body %}
+    <div class="col">
+        <h1>{{ app.user.displayName }}'s Profile</h1>
+
+        {{ form_errors(form) }}
+
+        {{ form_start(form) }}
+        {{ form_row(form.token) }}
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-outline-success">Update Token</button>
+            <button type="reset" class="btn btn-outline-warning">Reset</button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

@@ -25,6 +25,7 @@ final class Version20240324124737 extends AbstractMigration
           PASSWORD VARCHAR(255) NOT NULL,
           roles JSON NOT NULL,
           id UUID NOT NULL,
+          git_hub_token JSON DEFAULT NULL,
           PRIMARY KEY(id)
         )');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_IDENTIFIER_EMAIL ON "user" (username)');

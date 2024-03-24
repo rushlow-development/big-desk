@@ -47,11 +47,12 @@ use Zenstruck\Foundry\RepositoryProxy;
 final class UserFactory extends ModelFactory
 {
     public function __construct(
-        private UserPasswordHasherInterface $hasher,
+        private readonly UserPasswordHasherInterface $hasher,
     ) {
         parent::__construct();
     }
 
+    #[\Override]
     protected function getDefaults(): array
     {
         return [
@@ -62,6 +63,7 @@ final class UserFactory extends ModelFactory
         ];
     }
 
+    #[\Override]
     protected function initialize(): self
     {
         return $this
@@ -71,6 +73,7 @@ final class UserFactory extends ModelFactory
         ;
     }
 
+    #[\Override]
     protected static function getClass(): string
     {
         return User::class;
