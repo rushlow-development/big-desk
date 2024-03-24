@@ -14,6 +14,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 {
     public function __construct(
         #[ORM\Column(length: 180)]
+        private string $displayName,
+
+        #[ORM\Column(length: 180)]
         private string $username,
 
         #[ORM\Column]
@@ -24,6 +27,11 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         private array $roles = [],
     ) {
         parent::__construct();
+    }
+
+    public function getDisplayName(): string
+    {
+        return $this->displayName;
     }
 
     public function getUsername(): string

@@ -20,6 +20,7 @@ final class Version20240324124737 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->addSql('CREATE TABLE "user" (
+          display_name VARCHAR(180) NOT NULL,
           username VARCHAR(180) NOT NULL,
           PASSWORD VARCHAR(255) NOT NULL,
           roles JSON NOT NULL,
