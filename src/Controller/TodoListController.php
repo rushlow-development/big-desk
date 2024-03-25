@@ -8,8 +8,8 @@ use App\Exception\HttpClientException;
 use App\Form\TodoListType;
 use App\Model\GitHubIssue;
 use App\Model\GitHubPullRequest;
-use App\Repository\TaskRepository;
 use App\Repository\TodoListRepository;
+use App\Security\Voter\TodoListVoter;
 use App\Service\TaskService;
 use App\Util\UrlParser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,19 +18,23 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/todo', name: 'app_todo_')]
 final class TodoListController extends AbstractController
 {
+    use UserAwareTrait;
+
     public function __construct(
         private readonly TodoListRepository $listRepository,
     ) {
     }
 
+    #[IsGranted('IS_AUTHENTICATED')]
     #[Route('/new', name: 'list_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, TaskService $taskService, TaskRepository $taskRepository): Response
+    public function new(Request $request, TaskService $taskService): Response
     {
-        $form = $this->createForm(TodoListType::class, new TodoList(''));
+        $form = $this->createForm(TodoListType::class, new TodoList('', $this->getAuthenticatedUser()));
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -51,6 +55,7 @@ final class TodoListController extends AbstractController
         ]);
     }
 
+    #[IsGranted(TodoListVoter::EDIT, 'todoList')]
     #[Route('/{id}/edit', name: 'list_edit', requirements: ['id' => Requirement::UUID], methods: ['GET', 'POST'])]
     public function edit(Request $request, TodoList $todoList, TaskService $taskService): Response
     {
@@ -73,7 +78,8 @@ final class TodoListController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'list_delete', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    #[IsGranted(TodoListVoter::DELETE, 'todoList')]
+    #[Route('/{id}/delete', name: 'list_delete', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     public function delete(Request $request, TodoList $todoList): Response
     {
         if ($this->isCsrfTokenValid('delete'.$todoList->getId(), (string) $request->request->get('_token'))) {
@@ -83,6 +89,7 @@ final class TodoListController extends AbstractController
         return $this->redirectToRoute('app_main_index', status: Response::HTTP_SEE_OTHER);
     }
 
+    #[IsGranted(TodoListVoter::EDIT, 'todoList')]
     #[Route(
         path: '/{id}/task/remove/{task}',
         name: 'task_remove',

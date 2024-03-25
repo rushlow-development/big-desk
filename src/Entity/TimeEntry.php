@@ -15,6 +15,10 @@ class TimeEntry extends AbstractEntity
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
         private CarbonImmutable $startedAt,
 
+        #[ORM\ManyToOne]
+        #[ORM\JoinColumn(nullable: false)]
+        private User $owner,
+
         #[ORM\Column]
         private int $accumulatedTime = 0,
 
@@ -99,5 +103,10 @@ class TimeEntry extends AbstractEntity
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getOwner(): User
+    {
+        return $this->owner;
     }
 }

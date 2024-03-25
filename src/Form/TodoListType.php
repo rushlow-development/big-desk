@@ -7,7 +7,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TodoListType extends AbstractType
@@ -33,9 +32,6 @@ class TodoListType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => TodoList::class,
-            'empty_data' => fn (FormInterface $form): TodoList => new TodoList(
-                $form->get('name')->getData(), // @phpstan-ignore-line
-            ),
         ]);
     }
 }

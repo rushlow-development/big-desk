@@ -3,6 +3,7 @@
 namespace App\Tests\Unit\Entity;
 
 use App\Entity\TimeEntry;
+use App\Entity\User;
 use Carbon\CarbonImmutable;
 use PHPUnit\Framework\TestCase;
 
@@ -10,7 +11,8 @@ class TimeEntryTest extends TestCase
 {
     public function testStartTimer(): void
     {
-        $entry = new TimeEntry(new CarbonImmutable());
+        $user = $this->createMock(User::class);
+        $entry = new TimeEntry(new CarbonImmutable(), $user);
 
         self::assertTrue($entry->isRunning());
         self::assertSame(0, (int) $entry->getAccumulatedTime()->totalSeconds);
@@ -18,7 +20,8 @@ class TimeEntryTest extends TestCase
 
     public function testStopTimer(): void
     {
-        $entry = new TimeEntry(new CarbonImmutable());
+        $user = $this->createMock(User::class);
+        $entry = new TimeEntry(new CarbonImmutable(), $user);
 
         self::assertSame(0.0, $entry->getAccumulatedTime()->totalSeconds);
 

@@ -50,20 +50,13 @@ final class NoteFactory extends ModelFactory
     {
         return [
             'title' => self::faker()->sentence(),
+            'owner' => UserFactory::new(),
         ];
     }
 
     public function withContent(): self
     {
         return $this->addState(['content' => self::faker()->paragraph()]);
-    }
-
-    #[\Override]
-    protected function initialize(): self
-    {
-        return $this
-            // ->afterInstantiate(function(Note $note): void {})
-        ;
     }
 
     #[\Override]

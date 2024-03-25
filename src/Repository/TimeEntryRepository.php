@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\TimeEntry;
+use App\Entity\User;
 
 /**
  * @extends AbstractRepository<TimeEntry>
@@ -14,6 +15,12 @@ use App\Entity\TimeEntry;
  */
 class TimeEntryRepository extends AbstractRepository
 {
+    /** @return TimeEntry[] */
+    public function getTimersForUser(User $user): array
+    {
+        return $this->findBy(['owner' => $user], ['startedAt' => 'DESC']);
+    }
+
     #[\Override]
     protected static function getEntityClassName(): string
     {

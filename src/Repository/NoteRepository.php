@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Note;
+use App\Entity\User;
 
 /**
  * @extends AbstractRepository<Note>
@@ -14,6 +15,12 @@ use App\Entity\Note;
  */
 class NoteRepository extends AbstractRepository
 {
+    /** @return Note[] */
+    public function getNotesForUser(User $user): array
+    {
+        return $this->findBy(['owner' => $user]);
+    }
+
     #[\Override]
     protected static function getEntityClassName(): string
     {

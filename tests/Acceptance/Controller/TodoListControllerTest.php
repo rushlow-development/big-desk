@@ -2,6 +2,7 @@
 
 namespace App\Tests\Acceptance\Controller;
 
+use App\Factory\UserFactory;
 use App\Tests\PantherTestCase;
 
 class TodoListControllerTest extends PantherTestCase
@@ -10,7 +11,16 @@ class TodoListControllerTest extends PantherTestCase
 
     public function testNew(): void
     {
+        $user = UserFactory::createOne();
+
         $this->client->request('GET', sprintf('%s/new', $this->path));
+
+        $this->client->submitForm('Sign in', [
+            '_username' => $user->getUsername(),
+            '_password' => 'password',
+        ]);
+
+        $this->client->waitForElementToContain('h1', 'Create new TodoList');
 
         self::assertPageTitleContains('New TodoList');
 

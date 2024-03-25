@@ -11,13 +11,25 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class MainController extends AbstractController
 {
+    use UserAwareTrait;
+
     #[Route(name: 'app_main_index')]
-    public function index(NoteRepository $notes, TodoListRepository $listRepository, TimeEntryRepository $timeEntryRepository): Response
+    public function index(NoteRepository $noteRepository, TodoListRepository $listRepository, TimeEntryRepository $timeEntryRepository): Response
     {
+        $notes = [];
+        $todoLists = [];
+        $timers = [];
+
+        if (null !== $user = $this->getUser()) {
+            $notes = $noteRepository->getNotesForUser($user);
+            $todoLists = $listRepository->getTodoListForUser($user);
+            $timers = $timeEntryRepository->getTimersForUser($user);
+        }
+
         return $this->render('main.html.twig', [
-            'notes' => $notes->findAll(),
-            'todos' => $listRepository->findAll(),
-            'timers' => $timeEntryRepository->findBy([], ['startedAt' => 'DESC']),
+            'notes' => $notes,
+            'todos' => $todoLists,
+            'timers' => $timers,
         ]);
     }
 }
