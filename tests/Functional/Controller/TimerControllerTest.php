@@ -3,18 +3,34 @@
 namespace App\Tests\Functional\Controller;
 
 use App\Factory\TimeEntryFactory;
+use App\Factory\UserFactory;
 use App\Repository\TimeEntryRepository;
 use App\Tests\FunctionalTestCase;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 class TimerControllerTest extends FunctionalTestCase
 {
+    private KernelBrowser $client;
+
+    #[\Override]
+    protected function setUp(): void
+    {
+        $this->client = static::createClient();
+    }
+
     public function testCreateTimer(): void
     {
-        $client = static::createClient();
+        $user = UserFactory::createOne();
 
-        $client->request('POST', '/timer/create');
+        // Deny - Not Authenticated
+        $this->client->request('POST', $this->getPath('/create'));
+        self::assertResponseRedirects('/login');
+
+        // Allow authenticated user to create a timer
+        $this->client->loginUser($user->object());
+        $this->client->request('POST', $this->getPath('/create'));
 
         /** @var TimeEntryRepository $repository */
         $repository = static::getContainer()->get(TimeEntryRepository::class);
@@ -24,48 +40,68 @@ class TimerControllerTest extends FunctionalTestCase
 
     public function testStartTimer(): void
     {
-        $client = static::createClient();
+        $user = UserFactory::createOne();
+        $timeEntry = TimeEntryFactory::new(['owner' => $user])->notRunning()->create();
+        $path = $this->getPath(sprintf('/start/%s', $timeEntry->getId()));
 
-        $timeEntry = TimeEntryFactory::createOne(['running' => false]);
+        // Deny - Not Authenticated
+        $this->client->request('POST', $path);
+        self::assertResponseRedirects('/login');
 
-        $client->request('POST', '/timer/start/'.$timeEntry->getId());
+        // Deny - Not Owner of Timer
+        $this->client->loginUser(UserFactory::createOne()->object());
+        $this->client->request('POST', $path);
+        self::assertResponseStatusCodeSame(403);
+
+        // Allow Owner to start Timer
+        $this->client->loginUser($user->object());
+        $this->client->request('POST', $path);
 
         self::assertResponseIsSuccessful();
-
-        $responseContent = $client->getResponse()->getContent();
-
         self::assertJsonStringEqualsJsonString(
             /** @phpstan-ignore-next-line  */
             json_encode(['message' => 'OK', 'accumulatedSeconds' => 0, 'restartedAt' => $timeEntry->getLastRestartedAt()->timestamp]),
             /** @phpstan-ignore-next-line  */
-            $responseContent
+            $this->client->getResponse()->getContent()
         );
     }
 
     public function testPauseTimer(): void
     {
-        $client = static::createClient();
+        $user = UserFactory::createOne();
 
-        $startedAt = new CarbonImmutable();
-        Carbon::setTestNow($startedAt);
-
-        $timeEntry = TimeEntryFactory::createOne([
-            'startedAt' => $startedAt,
-            'running' => true,
-        ]);
-
+        Carbon::setTestNow($startedAt = new CarbonImmutable());
+        $timeEntry = TimeEntryFactory::new(['owner' => $user])->isRunning($startedAt)->create();
         Carbon::sleep(120);
 
-        $client->request('POST', '/timer/pause/'.$timeEntry->getId());
+        $path = $this->getPath(sprintf('/pause/%s', $timeEntry->getId()));
+
+        // Deny - Not Authenticated
+        $this->client->request('POST', $path);
+        self::assertResponseRedirects('/login');
+
+        // Deny - Not Owner of Timer
+        $this->client->loginUser(UserFactory::createOne()->object());
+        $this->client->request('POST', $path);
+        self::assertResponseStatusCodeSame(403);
+
+        // Allow Owner to start Timer
+        $this->client->loginUser($user->object());
+        $this->client->request('POST', $path);
 
         Carbon::setTestNow();
 
         self::assertResponseIsSuccessful();
 
-        $responseContent = $client->getResponse()->getContent();
-
         /** @phpstan-ignore-next-line  */
-        self::assertJsonStringEqualsJsonString(json_encode(['message' => 'OK', 'accumulatedSeconds' => 120]), $responseContent);
+        self::assertJsonStringEqualsJsonString(json_encode(['message' => 'OK', 'accumulatedSeconds' => 120]), $this->client->getResponse()->getContent());
         self::assertSame(120, (int) $timeEntry->getAccumulatedTime()->totalSeconds);
+    }
+
+    private function getPath(?string $suffix = null): string
+    {
+        $path = '/timer';
+
+        return null === $suffix ? $path : sprintf('%s%s', $path, $suffix);
     }
 }

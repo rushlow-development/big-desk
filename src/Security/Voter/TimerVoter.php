@@ -2,21 +2,21 @@
 
 namespace App\Security\Voter;
 
-use App\Entity\Note;
+use App\Entity\TimeEntry;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class NoteVoter extends AbstractVoter
+class TimerVoter extends AbstractVoter
 {
     #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $subject instanceof Note && \in_array($attribute, [
+        return $subject instanceof TimeEntry && \in_array($attribute, [
             self::EDIT,
             self::DELETE,
         ]);
     }
 
-    /** @param Note $subject */
+    /** @param TimeEntry $subject */
     #[\Override]
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {

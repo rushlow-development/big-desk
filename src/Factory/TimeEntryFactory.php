@@ -51,7 +51,24 @@ final class TimeEntryFactory extends ModelFactory
     {
         return [
             'startedAt' => CarbonImmutable::createFromInterface(self::faker()->dateTime()),
+            'owner' => UserFactory::new(),
         ];
+    }
+
+    public function notRunning(): self
+    {
+        return $this->addState(['running' => false]);
+    }
+
+    public function isRunning(?CarbonImmutable $startedAt = null): self
+    {
+        $state = ['running' => true];
+
+        if ($startedAt) {
+            $state['startedAt'] = $startedAt;
+        }
+
+        return $this->addState($state);
     }
 
     #[\Override]

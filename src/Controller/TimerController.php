@@ -4,26 +4,34 @@ namespace App\Controller;
 
 use App\Entity\TimeEntry;
 use App\Repository\TimeEntryRepository;
+use App\Security\Voter\TimerVoter;
 use Carbon\CarbonImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/timer', name: 'app_timer_')]
 class TimerController extends AbstractController
 {
+    use UserAwareTrait;
+
     public function __construct(
         private readonly TimeEntryRepository $repository,
     ) {
     }
 
+    #[IsGranted('IS_AUTHENTICATED')]
     #[Route(path: '/create', name: 'create', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     public function createTimer(): JsonResponse
     {
         // @TODO CSRF
 
-        $timeEntry = new TimeEntry(startedAt: new CarbonImmutable());
+        $timeEntry = new TimeEntry(
+            startedAt: new CarbonImmutable(),
+            owner: $this->getAuthenticatedUser(),
+        );
 
         $timeEntry->startTimer();
 
@@ -37,6 +45,7 @@ class TimerController extends AbstractController
         ]);
     }
 
+    #[IsGranted(TimerVoter::EDIT, 'timeEntry')]
     #[Route(path: '/start/{id}', name: 'start', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     public function startTimer(TimeEntry $timeEntry): JsonResponse
     {
@@ -53,6 +62,7 @@ class TimerController extends AbstractController
         ]);
     }
 
+    #[IsGranted(TimerVoter::EDIT, 'timeEntry')]
     #[Route(path: '/pause/{id}', name: 'pause', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     public function pauseTimer(TimeEntry $timeEntry, TimeEntryRepository $repository): JsonResponse
     {
@@ -66,6 +76,7 @@ class TimerController extends AbstractController
         ]);
     }
 
+    #[IsGranted(TimerVoter::DELETE, 'timeEntry')]
     #[Route(path: '/remove/{id}', name: 'remove', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     public function remove(TimeEntry $timeEntry): JsonResponse
     {

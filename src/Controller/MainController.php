@@ -17,15 +17,17 @@ class MainController extends AbstractController
     public function index(NoteRepository $noteRepository, TodoListRepository $listRepository, TimeEntryRepository $timeEntryRepository): Response
     {
         $notes = [];
+        $timers = [];
 
         if (null !== $user = $this->getUser()) {
             $notes = $noteRepository->getNotesForUser($user);
+            $timers = $timeEntryRepository->getTimersForUser($user);
         }
 
         return $this->render('main.html.twig', [
             'notes' => $notes,
             'todos' => $listRepository->findAll(),
-            'timers' => $timeEntryRepository->findBy([], ['startedAt' => 'DESC']),
+            'timers' => $timers,
         ]);
     }
 }
