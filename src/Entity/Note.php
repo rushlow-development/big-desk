@@ -19,7 +19,7 @@ class Note extends AbstractEntity
         #[ORM\Column(length: 255)]
         private string $title,
 
-        #[ORM\ManyToOne(inversedBy: 'notes')]
+        #[ORM\ManyToOne]
         #[ORM\JoinColumn(nullable: false)]
         private User $owner,
 

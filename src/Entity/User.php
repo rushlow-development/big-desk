@@ -5,8 +5,6 @@ namespace App\Entity;
 use App\Doctrine\Type\EncryptedDataType;
 use App\Model\EncryptedData;
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -34,10 +32,6 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
         #[ORM\Column(type: EncryptedDataType::ENCRYPTED_DATA_TYPE, nullable: true)]
         private ?EncryptedData $gitHubToken = null,
-
-        /** @var Collection<int, Note> */
-        #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'owner', orphanRemoval: true)]
-        private Collection $notes = new ArrayCollection()
     ) {
         parent::__construct();
     }
@@ -115,19 +109,4 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
         return $this;
     }
-
-    /** @return Collection<int, Note> */
-    public function getNotes(): Collection
-    {
-        return $this->notes;
-    }
-
-    //    public function addNote(Note $note): static
-    //    {
-    //        if (!$this->notes->contains($note)) {
-    //            $this->notes->add($note);
-    //        }
-    //
-    //        return $this;
-    //    }
 }

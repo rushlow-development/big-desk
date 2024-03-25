@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\TodoList;
+use App\Entity\User;
 
 /**
  * @extends AbstractRepository<TodoList>
@@ -14,6 +15,12 @@ use App\Entity\TodoList;
  */
 class TodoListRepository extends AbstractRepository
 {
+    /** @return TodoList[] */
+    public function getTodoListForUser(User $user): array
+    {
+        return $this->findBy(['owner' => $user]);
+    }
+
     #[\Override]
     protected static function getEntityClassName(): string
     {

@@ -18,7 +18,6 @@ class TimeEntryRepository extends AbstractRepository
     /** @return TimeEntry[] */
     public function getTimersForUser(User $user): array
     {
-        /** @phpstan-ignore-next-line */
         return $this->findBy(['owner' => $user], ['startedAt' => 'DESC']);
     }
 

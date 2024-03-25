@@ -17,6 +17,10 @@ class TodoList extends AbstractEntity
         #[ORM\Column]
         private string $name,
 
+        #[ORM\ManyToOne]
+        #[ORM\JoinColumn(nullable: false)]
+        private User $owner,
+
         /** @var Collection<int, Task> */
         #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'todoList', cascade: ['persist', 'remove'], orphanRemoval: true)]
         private Collection $tasks = new ArrayCollection(),
@@ -56,5 +60,10 @@ class TodoList extends AbstractEntity
         $this->tasks->removeElement($task);
 
         return $this;
+    }
+
+    public function getOwner(): User
+    {
+        return $this->owner;
     }
 }

@@ -50,6 +50,7 @@ final class TodoListFactory extends ModelFactory
     {
         return [
             'name' => self::faker()->sentence(),
+            'owner' => UserFactory::new(),
         ];
     }
 

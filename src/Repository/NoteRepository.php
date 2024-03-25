@@ -18,7 +18,6 @@ class NoteRepository extends AbstractRepository
     /** @return Note[] */
     public function getNotesForUser(User $user): array
     {
-        /** @phpstan-ignore-next-line */
         return $this->findBy(['owner' => $user]);
     }
 
