@@ -19,7 +19,9 @@
             {% endfor %}
         </div>
 
-        <button class="btn btn-outline-success">{{ button_label|default('Save') }}</button>
-        <a href="{{ path('app_main_index') }}" class="btn btn-outline-warning">Cancel</a>
+        <div class="mb-3">
+            <button class="btn btn-outline-success">{{ button_label|default('Save') }}</button>
+            <a href="{{ path('app_main_index') }}" class="btn btn-outline-warning">Cancel</a>
+        </div>
     {{ form_end(form) }}
 </div>
