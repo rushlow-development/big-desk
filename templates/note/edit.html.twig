@@ -7,5 +7,7 @@
 
     {{ include('note/_form.html.twig', {'button_label': 'Update'}) }}
 
-    {{ include('note/_delete_form.html.twig') }}
+    <div class="mb-3">
+        {{ include('note/_delete_form.html.twig') }}
+    </div>
 {% endblock %}
