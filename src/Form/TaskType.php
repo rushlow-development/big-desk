@@ -17,6 +17,9 @@ class TaskType extends AbstractType
         $builder
             ->add('name', TextType::class, [
                 'label' => false,
+                'row_attr' => [
+                    'class' => 'input-group mb-3',
+                ],
             ])
         ;
     }

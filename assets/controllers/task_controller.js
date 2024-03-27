@@ -13,7 +13,7 @@ export default class extends Controller {
 
     connect() {
         for (let i   = 0; i < this.taskListTarget.children.length; i++) {
-            this.addRemoveButton(this.taskListTarget.children[i]);
+            this.addRemoveButton(this.taskListTarget.children[i].getElementsByTagName('div')[0]);
         }
     }
 

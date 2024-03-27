@@ -13,9 +13,7 @@
             {{ stimulus_target('task', 'taskList') }}
         >
             {% for task in form.tasks %}
-                <div class="input-group mb-3">
-                    {{ form_widget(task) }}
-                </div>
+                {{ form_widget(task) }}
             {% endfor %}
         </div>
 
