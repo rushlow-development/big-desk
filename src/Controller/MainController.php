@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\NoteRepository;
-use App\Repository\TimeEntryRepository;
+use App\Repository\TimerRepository;
 use App\Repository\TodoListRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +14,7 @@ class MainController extends AbstractController
     use UserAwareTrait;
 
     #[Route(name: 'app_main_index')]
-    public function index(NoteRepository $noteRepository, TodoListRepository $listRepository, TimeEntryRepository $timeEntryRepository): Response
+    public function index(NoteRepository $noteRepository, TodoListRepository $listRepository, TimerRepository $timerRepository): Response
     {
         $notes = [];
         $todoLists = [];
@@ -23,7 +23,7 @@ class MainController extends AbstractController
         if (null !== $user = $this->getUser()) {
             $notes = $noteRepository->getNotesForUser($user);
             $todoLists = $listRepository->getTodoListForUser($user);
-            $timers = $timeEntryRepository->getTimersForUser($user);
+            $timers = $timerRepository->getTimersForUser($user);
         }
 
         return $this->render('main.html.twig', [

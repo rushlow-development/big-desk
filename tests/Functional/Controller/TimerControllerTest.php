@@ -2,9 +2,9 @@
 
 namespace App\Tests\Functional\Controller;
 
-use App\Factory\TimeEntryFactory;
+use App\Factory\TimerFactory;
 use App\Factory\UserFactory;
-use App\Repository\TimeEntryRepository;
+use App\Repository\TimerRepository;
 use App\Tests\FunctionalTestCase;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -32,8 +32,8 @@ class TimerControllerTest extends FunctionalTestCase
         $this->client->loginUser($user->object());
         $this->client->request('POST', $this->getPath('/create'));
 
-        /** @var TimeEntryRepository $repository */
-        $repository = static::getContainer()->get(TimeEntryRepository::class);
+        /** @var TimerRepository $repository */
+        $repository = static::getContainer()->get(TimerRepository::class);
 
         self::assertCount(1, $repository->findAll());
     }
@@ -41,7 +41,7 @@ class TimerControllerTest extends FunctionalTestCase
     public function testStartTimer(): void
     {
         $user = UserFactory::createOne();
-        $timeEntry = TimeEntryFactory::new(['owner' => $user])->notRunning()->create();
+        $timeEntry = TimerFactory::new(['owner' => $user])->notRunning()->create();
         $path = $this->getPath(sprintf('/start/%s', $timeEntry->getId()));
 
         // Deny - Not Authenticated
@@ -71,7 +71,7 @@ class TimerControllerTest extends FunctionalTestCase
         $user = UserFactory::createOne();
 
         Carbon::setTestNow($startedAt = new CarbonImmutable());
-        $timeEntry = TimeEntryFactory::new(['owner' => $user])->isRunning($startedAt)->create();
+        $timeEntry = TimerFactory::new(['owner' => $user])->isRunning($startedAt)->create();
         Carbon::sleep(120);
 
         $path = $this->getPath(sprintf('/pause/%s', $timeEntry->getId()));

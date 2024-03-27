@@ -4,7 +4,7 @@ namespace App\DataFixtures;
 
 use App\Factory\NoteFactory;
 use App\Factory\TaskFactory;
-use App\Factory\TimeEntryFactory;
+use App\Factory\TimerFactory;
 use App\Factory\TodoListFactory;
 use App\Factory\UserFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -24,6 +24,6 @@ class LorumIpsumFixtures extends Fixture
             TaskFactory::createMany(3, ['todoList' => $todoList]);
         }
 
-        TimeEntryFactory::new()->notRunning()->createMany(3, ['owner' => $user]);
+        TimerFactory::new()->notRunning()->createMany(3, ['owner' => $user]);
     }
 }
