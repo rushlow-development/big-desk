@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\TimeEntry;
-use App\Repository\TimeEntryRepository;
+use App\Entity\Timer;
+use App\Repository\TimerRepository;
 use App\Security\Voter\TimerVoter;
 use Carbon\CarbonImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +18,7 @@ class TimerController extends AbstractController
     use UserAwareTrait;
 
     public function __construct(
-        private readonly TimeEntryRepository $repository,
+        private readonly TimerRepository $repository,
     ) {
     }
 
@@ -28,7 +28,7 @@ class TimerController extends AbstractController
     {
         // @TODO CSRF
 
-        $timeEntry = new TimeEntry(
+        $timeEntry = new Timer(
             startedAt: new CarbonImmutable(),
             owner: $this->getAuthenticatedUser(),
         );
@@ -39,7 +39,7 @@ class TimerController extends AbstractController
 
         return $this->json([
             'message' => 'OK',
-            'html' => $this->render('time_entry/_timer-card.html.twig', [
+            'html' => $this->render('timer/_timer-card.html.twig', [
                 'timer' => $timeEntry,
             ]),
         ]);
@@ -47,7 +47,7 @@ class TimerController extends AbstractController
 
     #[IsGranted(TimerVoter::EDIT, 'timeEntry')]
     #[Route(path: '/start/{id}', name: 'start', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
-    public function startTimer(TimeEntry $timeEntry): JsonResponse
+    public function startTimer(Timer $timeEntry): JsonResponse
     {
         // @TODO CSRF
 
@@ -64,11 +64,11 @@ class TimerController extends AbstractController
 
     #[IsGranted(TimerVoter::EDIT, 'timeEntry')]
     #[Route(path: '/pause/{id}', name: 'pause', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
-    public function pauseTimer(TimeEntry $timeEntry, TimeEntryRepository $repository): JsonResponse
+    public function pauseTimer(Timer $timeEntry): JsonResponse
     {
         $timeEntry->stopTimer();
 
-        $repository->flush();
+        $this->repository->flush();
 
         return $this->json([
             'message' => 'OK',
@@ -78,7 +78,7 @@ class TimerController extends AbstractController
 
     #[IsGranted(TimerVoter::DELETE, 'timeEntry')]
     #[Route(path: '/remove/{id}', name: 'remove', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
-    public function remove(TimeEntry $timeEntry): JsonResponse
+    public function remove(Timer $timeEntry): JsonResponse
     {
         $this->repository->remove($timeEntry, flush: true);
 

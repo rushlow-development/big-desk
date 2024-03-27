@@ -2,8 +2,8 @@
 
 namespace App\Twig\Components;
 
-use App\Entity\TimeEntry;
-use App\Repository\TimeEntryRepository;
+use App\Entity\Timer as EntityTimer;
+use App\Repository\TimerRepository;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
@@ -17,13 +17,13 @@ final class Timer
     use DefaultActionTrait;
 
     #[LiveProp(writable: ['name'])]
-    public TimeEntry $timer;
+    public EntityTimer $timer;
 
     #[LiveProp]
     public bool $isEditing = false;
 
     #[LiveAction]
-    public function startTimer(TimeEntryRepository $repository): void
+    public function startTimer(TimerRepository $repository): void
     {
         $this->timer->startTimer();
 
@@ -35,7 +35,7 @@ final class Timer
     }
 
     #[LiveAction]
-    public function stopTimer(TimeEntryRepository $repository): void
+    public function stopTimer(TimerRepository $repository): void
     {
         $this->timer->stopTimer();
 
@@ -55,7 +55,7 @@ final class Timer
     }
 
     #[LiveAction]
-    public function saveName(TimeEntryRepository $repository): void
+    public function saveName(TimerRepository $repository): void
     {
         $repository->flush();
 

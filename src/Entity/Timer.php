@@ -2,14 +2,14 @@
 
 namespace App\Entity;
 
-use App\Repository\TimeEntryRepository;
+use App\Repository\TimerRepository;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterval;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: TimeEntryRepository::class)]
-class TimeEntry extends AbstractEntity
+#[ORM\Entity(repositoryClass: TimerRepository::class)]
+class Timer extends AbstractEntity
 {
     public function __construct(
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
